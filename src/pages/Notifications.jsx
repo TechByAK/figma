@@ -1,40 +1,36 @@
-import { useNavigate } from "react-router-dom";
+import DesktopLayout from "../components/DesktopLayout";
 
 function Notifications() {
-  const navigate = useNavigate();
-
   return (
-    <div style={page}>
-      <h1>Notifications</h1>
+    <DesktopLayout>
+      <section style={panel}>
+        <h1 style={title}>Notifications</h1>
 
-      <div style={card}>Your Stellar Physics class starts soon.</div>
-      <div style={card}>New campus event available.</div>
-
-      <button
-  onClick={() => navigate("/app")}
-  style={{
-    background: "#081a4a",
-    color: "white",
-    border: "none",
-    borderRadius: "18px",
-    padding: "16px 28px",
-    fontSize: "18px",
-    fontWeight: "600",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    boxShadow: "0 6px 18px rgba(8,26,74,0.18)",
-    minHeight: "58px"
-  }}
->
-  🏠 Back Home
-</button>
-    </div>
+        <div style={card}>Your Stellar Physics class starts soon.</div>
+        <div style={card}>New campus event available.</div>
+      </section>
+    </DesktopLayout>
   );
 }
 
-const page = { padding: "30px", fontFamily: "Arial" };
-const card = { background: "white", padding: "20px", borderRadius: "15px", boxShadow: "0 4px 15px #ddd", marginBottom: "20px" };
+const panel = {
+  background: "white",
+  borderRadius: "26px",
+  padding: "28px",
+  minHeight: "calc(100vh - 160px)",
+  boxShadow: "0 5px 22px rgba(20, 25, 50, 0.12)",
+};
+
+const title = {
+  margin: "0 0 24px",
+  color: "#111735",
+};
+
+const card = {
+  background: "#f5f6fa",
+  padding: "20px",
+  borderRadius: "16px",
+  marginBottom: "20px",
+};
 
 export default Notifications;

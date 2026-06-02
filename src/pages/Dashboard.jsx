@@ -1,56 +1,14 @@
 import { useNavigate } from "react-router-dom";
+import AppIcon from "../components/AppIcon";
+import DesktopLayout from "../components/DesktopLayout";
 
 function Dashboard() {
   const navigate = useNavigate();
 
   const user = localStorage.getItem("user") || "guest";
-  const name = user === "naima" ? "Naima" : "Guest";
-  const avatar = user === "naima" ? "/images/naima-figma.png" : "/images/guest.png";
-
-  function logout() {
-    localStorage.removeItem("user");
-    navigate("/login");
-  }
 
   return (
-    <div style={page}>
-      <div style={layout}>
-
-        {/* Sidebar */}
-        <div style={sidebar}>
-          <img src="/images/Frame-desktop.png" style={logo} />
-
-          <SideItem active label="𓃑" text="Dashboard" onClick={() => navigate("/app")} />
-          <SideItem label="🗓️" text="Schedule" onClick={() => navigate("/schedule")} />
-          <SideItem label="🎓" text="Studies" onClick={() => navigate("/studies")} />
-          <SideItem label="❔" text="Help" onClick={() => navigate("/help")} />
-
-          <button onClick={logout} style={logoutBtn}>
-            🚪 Logout
-          </button>
-        </div>
-
-        {/* Main */}
-        <div style={main}>
-
-          {/* Header */}
-          <div style={header}>
-            <div style={profile}>
-              <img src={avatar} style={avatarStyle} />
-
-              <div>
-                <p style={hiText}>Hi</p>
-                <h1 style={nameTitle}>{name} !</h1>
-              </div>
-            </div>
-
-            <div style={topButtons}>
-              <TopButton onClick={() => navigate("/notifications")}>🔔</TopButton>
-              <TopButton onClick={() => navigate("/settings")}>⚙️</TopButton>
-            </div>
-          </div>
-
-          {/* Main Dashboard Card */}
+    <DesktopLayout>
           <div style={dashboardCard}>
 
             {/* Next course */}
@@ -59,7 +17,7 @@ function Dashboard() {
 
               {user === "guest" ? (
                 <div style={emptyCourse}>
-                  <div style={{ fontSize: "42px" }}>🗓️</div>
+                  <AppIcon name="calendar" size={42} color="#6b6677" />
                   <h3>No courses available</h3>
                   <p>Guest users do not have a personal schedule.</p>
                 </div>
@@ -110,46 +68,18 @@ function Dashboard() {
                 academic and personal success...
               </p>
 
-              <button style={blueButton}>🗺️ Campus map</button>
-              <button style={cyanButton}>🎓 School services</button>
+              <button style={blueButton}>
+                <AppIcon name="map" size={21} />
+                <span>Campus map</span>
+              </button>
+              <button style={cyanButton}>
+                <AppIcon name="school" size={21} />
+                <span>School services</span>
+              </button>
             </div>
 
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SideItem({ label, text, onClick, active }) {
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        padding: "13px",
-        borderRadius: "14px",
-        marginBottom: "16px",
-        cursor: "pointer",
-        background: active ? "#f0efff" : "white",
-        color: active ? "#081a4a" : "#333",
-        fontWeight: active ? "bold" : "normal",
-        fontSize: "15px",
-      }}
-    >
-      <span style={{ fontSize: "21px" }}>{label}</span>
-      <span>{text}</span>
-    </div>
-  );
-}
-
-function TopButton({ children, onClick }) {
-  return (
-    <button onClick={onClick} style={topButton}>
-      {children}
-    </button>
+    </DesktopLayout>
   );
 }
 
@@ -179,87 +109,6 @@ function EventImage({ src }) {
 }
 
 /* STYLES */
-
-const page = {
-  fontFamily: "Arial",
-  background: "#f5f6fa",
-  minHeight: "100vh",
-  width: "100vw",
-  overflowX: "hidden",
-};
-
-const layout = {
-  display: "flex",
-  minHeight: "100vh",
-  width: "100%",
-};
-
-const sidebar = {
-  width: "140px",
-  flexShrink: 0,
-  background: "white",
-  padding: "20px 10px",
-  boxSizing: "border-box",
-};
-
-const logo = {
-  width: "95px",
-  display: "block",
-  margin: "0 auto 50px",
-};
-
-const main = {
-  flex: 1,
-  padding: "24px",
-  boxSizing: "border-box",
-  minWidth: 0,
-};
-
-const header = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: "28px",
-};
-
-const profile = {
-  display: "flex",
-  alignItems: "center",
-  gap: "16px",
-};
-
-const avatarStyle = {
-  width: "58px",
-  height: "58px",
-  borderRadius: "50%",
-};
-
-const hiText = {
-  margin: 0,
-  fontSize: "17px",
-};
-
-const nameTitle = {
-  margin: 0,
-  fontSize: "42px",
-  color: "#111735",
-};
-
-const topButtons = {
-  display: "flex",
-  gap: "16px",
-};
-
-const topButton = {
-  width: "64px",
-  height: "64px",
-  borderRadius: "18px",
-  border: "none",
-  background: "white",
-  fontSize: "28px",
-  cursor: "pointer",
-  boxShadow: "0 5px 18px #ddd",
-};
 
 const dashboardCard = {
   background: "white",
@@ -365,32 +214,27 @@ const welcomeText = {
 const blueButton = {
   width: "100%",
   marginTop: "38px",
-  padding: "18px",
-  fontSize: "18px",
+  minHeight: "58px",
+  padding: "0 18px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "10px",
+  fontSize: "17px",
   borderRadius: "18px",
   border: "none",
   background: "#081a4a",
   color: "white",
+  fontWeight: "700",
   cursor: "pointer",
   boxShadow: "0 5px 18px rgba(8,26,74,0.25)",
+  whiteSpace: "nowrap",
 };
 
 const cyanButton = {
   ...blueButton,
   marginTop: "20px",
   background: "#00a8c8",
-};
-
-const logoutBtn = {
-  marginTop: "110px",
-  width: "100%",
-  padding: "14px",
-  border: "none",
-  borderRadius: "16px",
-  background: "white",
-  color: "#666",
-  fontSize: "15px",
-  cursor: "pointer",
 };
 
 export default Dashboard;

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 221 168" role="img" aria-labelledby="title desc">
+  <title id="title">Rennes School of Business Application</title>
+  <desc id="desc">Compact blue version of the app logo for the desktop sidebar.</desc>
+  <g fill="none" fill-rule="evenodd">
+    <path
+      fill="#00337a"
+      d="M1 117c15 5 35-4 61-25l37-30-50 17-15-3 58-35c31-19 64-34 96-44 15-5 24-4 28 0 4 5 2 13-5 25l44-13 8-17 5 17 22 10 7 13 12 9-3 20-17 6-16-3-28 8-17 11 43 11 59-11 48 10 4 12-6 8-41-11-71 14-45-14-23 15-75 18-31 31-30 40-32 9-25 32-25 14-11-4 15-20 11-32 22-17 5-39-47 35c-34 25-63 42-83 42-8 0-11-3-12-7-1-5 1-7 6-5Z"
+      transform="translate(-30 3) scale(.64)"
+    />
+
+    <g font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900">
+      <text x="90" y="84" font-size="24" fill="#00337a">RENNES</text>
+      <text x="90" y="107" font-size="24" fill="#00337a">SCHOOL</text>
+      <text x="90" y="130" font-size="24" fill="#00337a">BUSINESS</text>
+      <text x="90" y="158" font-size="25" fill="#df2d91">APPLICATION</text>
+    </g>
+  </g>
+</svg>

@@ -1,36 +1,35 @@
-import { useNavigate } from "react-router-dom";
+import DesktopLayout from "../components/DesktopLayout";
 
 function Studies() {
-  const navigate = useNavigate();
-
   return (
-    <div style={page}>
-      <h1>Studies</h1>
-      <p>Your courses, grades, and study documents will appear here.</p>
-      <button
-  onClick={() => navigate("/app")}
-  style={{
-    background: "#081a4a",
-    color: "white",
-    border: "none",
-    borderRadius: "18px",
-    padding: "16px 28px",
-    fontSize: "18px",
-    fontWeight: "600",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    boxShadow: "0 6px 18px rgba(8,26,74,0.18)",
-    minHeight: "58px"
-  }}
->
-  🏠 Back Home
-</button>
-    </div>
+    <DesktopLayout>
+      <section style={panel}>
+        <h1 style={title}>Studies</h1>
+        <p style={text}>Your courses, grades, and study documents will appear here.</p>
+      </section>
+    </DesktopLayout>
   );
 }
 
-const page = { padding: "30px", fontFamily: "Arial" };
+const panel = {
+  background: "white",
+  borderRadius: "26px",
+  padding: "28px",
+  minHeight: "calc(100vh - 160px)",
+  boxShadow: "0 5px 22px rgba(20, 25, 50, 0.12)",
+};
+
+const title = {
+  margin: "0 0 14px",
+  lineHeight: 1.15,
+  color: "#111735",
+};
+
+const text = {
+  margin: 0,
+  lineHeight: 1.6,
+  color: "#596080",
+  fontSize: "17px",
+};
 
 export default Studies;

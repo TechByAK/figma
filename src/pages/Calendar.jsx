@@ -1,28 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AppIcon from "../components/AppIcon";
+import {
+  MONTHS_2026,
+  getDaysInMonth2026,
+  getVisibleWeekDays2026,
+} from "../utils/calendar2026";
 
 function Calendar() {
   const navigate = useNavigate();
 
   const user = localStorage.getItem("user") || "guest";
 
-  const months = [
-    "January 2025",
-    "February 2025",
-    "March 2025",
-    "April 2025",
-    "May 2025",
-    "June 2025",
-    "July 2025",
-    "August 2025",
-    "September 2025",
-    "October 2025",
-    "November 2025",
-    "December 2025",
-  ];
-
   const [monthIndex, setMonthIndex] = useState(1);
   const [selectedDay, setSelectedDay] = useState(16);
+  const weekDays = getVisibleWeekDays2026(monthIndex, selectedDay);
 
   function previousMonth() {
     if (monthIndex > 0) {
@@ -32,7 +24,7 @@ function Calendar() {
   }
 
   function nextMonth() {
-    if (monthIndex < months.length - 1) {
+    if (monthIndex < MONTHS_2026.length - 1) {
       setMonthIndex(monthIndex + 1);
       setSelectedDay(1);
     }
@@ -41,60 +33,77 @@ function Calendar() {
   function previousDay() {
     if (selectedDay > 1) {
       setSelectedDay(selectedDay - 1);
+      return;
+    }
+
+    if (monthIndex > 0) {
+      const previousMonthIndex = monthIndex - 1;
+
+      setMonthIndex(previousMonthIndex);
+      setSelectedDay(getDaysInMonth2026(previousMonthIndex));
     }
   }
 
   function nextDay() {
-    if (selectedDay < 28) {
+    const monthLength = getDaysInMonth2026(monthIndex);
+
+    if (selectedDay < monthLength) {
       setSelectedDay(selectedDay + 1);
+      return;
+    }
+
+    if (monthIndex < MONTHS_2026.length - 1) {
+      setMonthIndex(monthIndex + 1);
+      setSelectedDay(1);
     }
   }
-
-  const weekDays = [
-    { label: "Mon", number: 15 },
-    { label: "Tue", number: 16 },
-    { label: "Wed", number: 17 },
-    { label: "Thu", number: 18 },
-    { label: "Fri", number: 19 },
-  ];
 
   return (
     <div style={page}>
       <div style={monthHeader}>
         <button onClick={previousMonth} style={navBtn}>
-          ←
+          <AppIcon name="arrowLeft" size={20} />
         </button>
 
-        <h1 style={monthTitle}>{months[monthIndex]}</h1>
+        <h1 style={monthTitle}>{MONTHS_2026[monthIndex]}</h1>
 
         <button onClick={nextMonth} style={navBtn}>
-          →
+          <AppIcon name="arrowRight" size={20} />
         </button>
       </div>
 
       <div style={dayNavigator}>
         <button onClick={previousDay} style={smallBtn}>
-          ← Day
+          <AppIcon name="arrowLeft" size={17} />
+          <span>Day</span>
         </button>
 
         <strong>Day {selectedDay}</strong>
 
         <button onClick={nextDay} style={smallBtn}>
-          Day →
+          <span>Day</span>
+          <AppIcon name="arrowRight" size={17} />
         </button>
       </div>
 
       <div style={days}>
         {weekDays.map((day) => (
-          <div
-            key={day.number}
-            onClick={() => setSelectedDay(day.number)}
-            style={day.number === selectedDay ? selectedDayStyle : dayStyle}
+          <button
+            key={`${day.label}-${day.number || "empty"}`}
+            onClick={() => day.number && setSelectedDay(day.number)}
+            style={
+              day.number === selectedDay
+                ? selectedDayStyle
+                : day.number
+                ? dayStyle
+                : emptyDayStyle
+            }
+            disabled={!day.number}
           >
             {day.label}
             <br />
-            {day.number}
-          </div>
+            {day.number || ""}
+          </button>
         ))}
       </div>
 
@@ -252,28 +261,24 @@ function CourseCard({ title, location, time, color, cancelled }) {
 function BottomNav({ navigate }) {
   return (
     <div style={bottomNav}>
-      <div onClick={() => navigate("/app")}>
-        𓃑
-        <br />
-        Dashboard
+      <div style={navItem} onClick={() => navigate("/app")}>
+        <AppIcon name="dashboard" size={22} />
+        <span>Dashboard</span>
       </div>
 
-      <div style={{ color: "#111735" }} onClick={() => navigate("/schedule")}>
-        🗓️
-        <br />
-        Schedule
+      <div style={activeNavItem} onClick={() => navigate("/schedule")}>
+        <AppIcon name="calendar" size={22} />
+        <span>Schedule</span>
       </div>
 
-      <div onClick={() => navigate("/studies")}>
-        🎓
-        <br />
-        Studies
+      <div style={navItem} onClick={() => navigate("/studies")}>
+        <AppIcon name="school" size={22} />
+        <span>Studies</span>
       </div>
 
-      <div onClick={() => navigate("/help")}>
-        ❔
-        <br />
-        Help
+      <div style={navItem} onClick={() => navigate("/help")}>
+        <AppIcon name="help" size={22} />
+        <span>Help</span>
       </div>
     </div>
   );
@@ -301,10 +306,13 @@ const monthTitle = {
 const navBtn = {
   width: "42px",
   height: "42px",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
   borderRadius: "12px",
   border: "1px solid #d4d8e8",
   background: "white",
-  fontSize: "20px",
+  color: "#111735",
 };
 
 const dayNavigator = {
@@ -315,24 +323,39 @@ const dayNavigator = {
 };
 
 const smallBtn = {
-  padding: "8px 12px",
+  minHeight: "38px",
+  padding: "0 12px",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "6px",
   borderRadius: "10px",
   border: "1px solid #d4d8e8",
   background: "white",
+  color: "#111735",
+  fontWeight: "600",
 };
 
 const days = {
-  display: "flex",
-  justifyContent: "space-between",
+  display: "grid",
+  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+  gap: "4px",
   margin: "35px 0",
-  fontSize: "20px",
+  fontSize: "16px",
 };
 
 const dayStyle = {
-  padding: "12px",
+  minHeight: "58px",
+  padding: "8px 4px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  border: 0,
+  background: "transparent",
   cursor: "pointer",
   textAlign: "center",
   color: "#596080",
+  font: "inherit",
 };
 
 const selectedDayStyle = {
@@ -340,6 +363,12 @@ const selectedDayStyle = {
   background: "#081a4a",
   color: "white",
   borderRadius: "15px",
+};
+
+const emptyDayStyle = {
+  ...dayStyle,
+  cursor: "default",
+  color: "#c8ccda",
 };
 
 const timeline = {
@@ -386,12 +415,28 @@ const bottomNav = {
   left: 0,
   right: 0,
   background: "white",
-  display: "flex",
-  justifyContent: "space-around",
-  padding: "20px 0",
+  display: "grid",
+  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+  padding: "14px 0 16px",
   boxShadow: "0 -4px 18px #ddd",
   color: "#9aa0b5",
   textAlign: "center",
+};
+
+const navItem = {
+  minWidth: 0,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "5px",
+  fontSize: "12px",
+  fontWeight: "600",
+  cursor: "pointer",
+};
+
+const activeNavItem = {
+  ...navItem,
+  color: "#111735",
 };
 
 export default Calendar;

@@ -1,30 +1,21 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import AppIcon from "../components/AppIcon";
+import DesktopLayout from "../components/DesktopLayout";
+import {
+  MONTHS_2026,
+  WEEKDAY_LABELS,
+  getDaysInMonth2026,
+  getMondayFirstWeekdayIndex,
+  getVisibleWeekDays2026,
+} from "../utils/calendar2026";
 
 function DesktopCalendar() {
-  const navigate = useNavigate();
-
-  const months = [
-    "January 2025",
-    "February 2025",
-    "March 2025",
-    "April 2025",
-    "May 2025",
-    "June 2025",
-    "July 2025",
-    "August 2025",
-    "September 2025",
-    "October 2025",
-    "November 2025",
-    "December 2025",
-  ];
-
   const [view, setView] = useState("week");
   const [monthIndex, setMonthIndex] = useState(1);
   const [selectedDay, setSelectedDay] = useState(16);
 
   function nextMonth() {
-    if (monthIndex < months.length - 1) {
+    if (monthIndex < MONTHS_2026.length - 1) {
       setMonthIndex(monthIndex + 1);
       setSelectedDay(1);
     }
@@ -38,87 +29,50 @@ function DesktopCalendar() {
   }
 
   function nextDay() {
-    if (selectedDay < 28) {
+    const monthLength = getDaysInMonth2026(monthIndex);
+
+    if (selectedDay < monthLength) {
       setSelectedDay(selectedDay + 1);
+      return;
+    }
+
+    if (monthIndex < MONTHS_2026.length - 1) {
+      setMonthIndex(monthIndex + 1);
+      setSelectedDay(1);
     }
   }
 
   function previousDay() {
     if (selectedDay > 1) {
       setSelectedDay(selectedDay - 1);
+      return;
+    }
+
+    if (monthIndex > 0) {
+      const previousMonthIndex = monthIndex - 1;
+
+      setMonthIndex(previousMonthIndex);
+      setSelectedDay(getDaysInMonth2026(previousMonthIndex));
     }
   }
 
   return (
-    <div style={{ margin: 0, fontFamily: "Arial", background: "#f5f6fa" }}>
-      <div style={{ display: "flex", minHeight: "100vh" }}>
-        <div style={sidebar}>
-          <img src="/images/Frame-desktop.png" style={{ width: "90px" }} />
-
-          <div style={{ marginTop: "60px" }}>
-            <p onClick={() => navigate("/app")} style={sideItem}>
-              𓃑
-              <br />
-              Dashboard
-            </p>
-
-            <p style={{ ...sideItem, color: "#111735", fontWeight: "bold" }}>
-              🗓️
-              <br />
-              Schedule
-            </p>
-
-            <p onClick={() => navigate("/studies")} style={sideItem}>
-              🎓
-              <br />
-              Studies
-            </p>
-
-            <p onClick={() => navigate("/help")} style={sideItem}>
-              ❔
-              <br />
-              Help
-            </p>
-          </div>
-
-          <p
-            onClick={() => {
-              localStorage.removeItem("user");
-              navigate("/login");
-            }}
-            style={{ ...sideItem, marginTop: "250px" }}
-          >
-            ↪
-            <br />
-            Logout
-          </p>
-        </div>
-
-        <div style={{ flex: 1, padding: "25px" }}>
-          <div style={topbar}>
-            <h1 style={{ margin: 0 }}>Hi Naima !</h1>
-
-            <div style={{ display: "flex", gap: "15px" }}>
-              <button onClick={() => navigate("/notifications")}>🔔</button>
-              <button onClick={() => navigate("/settings")}>⚙️</button>
-            </div>
-          </div>
-
+    <DesktopLayout>
           <div style={calendarCard}>
             <div style={calendarHeader}>
-              <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                <button onClick={previousMonth} style={normalBtn}>
-                  ←
+              <div style={monthControls}>
+                <button onClick={previousMonth} style={iconBtn} aria-label="Previous month">
+                  <AppIcon name="arrowLeft" size={20} />
                 </button>
 
-                <h2 style={{ margin: 0 }}>{months[monthIndex]}</h2>
+                <h2 style={monthTitle}>{MONTHS_2026[monthIndex]}</h2>
 
-                <button onClick={nextMonth} style={normalBtn}>
-                  →
+                <button onClick={nextMonth} style={iconBtn} aria-label="Next month">
+                  <AppIcon name="arrowRight" size={20} />
                 </button>
               </div>
 
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div style={viewControls}>
                 <button
                   onClick={() => setView("day")}
                   style={view === "day" ? activeBtn : normalBtn}
@@ -147,21 +101,27 @@ function DesktopCalendar() {
                 selectedDay={selectedDay}
                 nextDay={nextDay}
                 previousDay={previousDay}
-                month={months[monthIndex]}
+                month={MONTHS_2026[monthIndex]}
               />
             )}
 
             {view === "week" && (
-              <WeekView selectedDay={selectedDay} setSelectedDay={setSelectedDay} />
+              <WeekView
+                monthIndex={monthIndex}
+                selectedDay={selectedDay}
+                setSelectedDay={setSelectedDay}
+              />
             )}
 
             {view === "month" && (
-              <MonthView selectedDay={selectedDay} setSelectedDay={setSelectedDay} />
+              <MonthView
+                monthIndex={monthIndex}
+                selectedDay={selectedDay}
+                setSelectedDay={setSelectedDay}
+              />
             )}
           </div>
-        </div>
-      </div>
-    </div>
+    </DesktopLayout>
   );
 }
 
@@ -172,7 +132,8 @@ function DayView({ selectedDay, nextDay, previousDay, month }) {
     <div>
       <div style={dayHeader}>
         <button onClick={previousDay} style={normalBtn}>
-          ← Previous Day
+          <AppIcon name="arrowLeft" size={18} />
+          <span>Previous Day</span>
         </button>
 
         <h2 style={{ margin: 0 }}>
@@ -180,7 +141,8 @@ function DayView({ selectedDay, nextDay, previousDay, month }) {
         </h2>
 
         <button onClick={nextDay} style={normalBtn}>
-          Next Day →
+          <span>Next Day</span>
+          <AppIcon name="arrowRight" size={18} />
         </button>
       </div>
 
@@ -273,17 +235,8 @@ function TimeRow({ time, children }) {
 
 /* WEEK VIEW */
 
-function WeekView({ selectedDay, setSelectedDay }) {
-  const days = [
-    { label: "Mon", number: 15 },
-    { label: "Tue", number: 16 },
-    { label: "Wed", number: 17 },
-    { label: "Thu", number: 18 },
-    { label: "Fri", number: 19 },
-    { label: "Sat", number: 20 },
-    { label: "Sun", number: 21 },
-  ];
-
+function WeekView({ monthIndex, selectedDay, setSelectedDay }) {
+  const days = getVisibleWeekDays2026(monthIndex, selectedDay);
   const hours = [
     "9 AM",
     "10 AM",
@@ -304,13 +257,13 @@ function WeekView({ selectedDay, setSelectedDay }) {
 
         {days.map((day) => (
           <div
-            key={day.number}
-            onClick={() => setSelectedDay(day.number)}
+            key={`${day.label}-${day.number || "empty"}`}
+            onClick={() => day.number && setSelectedDay(day.number)}
             style={day.number === selectedDay ? selectedDayBox : dayCell}
           >
             {day.label}
             <br />
-            {day.number}
+            {day.number || ""}
           </div>
         ))}
       </div>
@@ -377,35 +330,47 @@ function WeekView({ selectedDay, setSelectedDay }) {
 
 /* MONTH VIEW */
 
-function MonthView({ selectedDay, setSelectedDay }) {
-  const days = Array.from({ length: 28 }, (_, i) => i + 1);
+function MonthView({ monthIndex, selectedDay, setSelectedDay }) {
+  const monthLength = getDaysInMonth2026(monthIndex);
+  const leadingBlanks = getMondayFirstWeekdayIndex(monthIndex, 1);
+  const cells = [
+    ...Array.from({ length: leadingBlanks }, (_, index) => ({
+      type: "blank",
+      key: `blank-${index}`,
+    })),
+    ...Array.from({ length: monthLength }, (_, index) => ({
+      type: "day",
+      day: index + 1,
+      key: `day-${index + 1}`,
+    })),
+  ];
 
   return (
     <div style={{ marginTop: "35px" }}>
       <div style={monthGridHeader}>
-        <div>Mon</div>
-        <div>Tue</div>
-        <div>Wed</div>
-        <div>Thu</div>
-        <div>Fri</div>
-        <div>Sat</div>
-        <div>Sun</div>
+        {WEEKDAY_LABELS.map((label) => (
+          <div key={label}>{label}</div>
+        ))}
       </div>
 
       <div style={monthGrid}>
-        {days.map((day) => (
+        {cells.map((cell) =>
+          cell.type === "blank" ? (
+            <div key={cell.key} style={blankMonthDay} />
+          ) : (
           <div
-            key={day}
-            onClick={() => setSelectedDay(day)}
-            style={day === selectedDay ? selectedMonthDay : monthDay}
+            key={cell.key}
+            onClick={() => setSelectedDay(cell.day)}
+            style={cell.day === selectedDay ? selectedMonthDay : monthDay}
           >
-            <strong>{day}</strong>
+            <strong>{cell.day}</strong>
 
-            {day === 16 && <p>Stellar Physics</p>}
-            {day === 17 && <p>Business Analytics</p>}
-            {day === 19 && <p>Stellar Physics</p>}
+            {cell.day === 16 && <p>Stellar Physics</p>}
+            {cell.day === 17 && <p>Business Analytics</p>}
+            {cell.day === 19 && <p>Stellar Physics</p>}
           </div>
-        ))}
+          )
+        )}
       </div>
     </div>
   );
@@ -436,44 +401,63 @@ function EventCard({ title, time, color, cancelled }) {
 
 /* STYLES */
 
-const sidebar = {
-  width: "120px",
-  background: "white",
-  textAlign: "center",
-  paddingTop: "20px",
-};
-
-const sideItem = {
-  cursor: "pointer",
-  color: "gray",
-};
-
-const topbar = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
 const calendarCard = {
   background: "white",
-  borderRadius: "20px",
+  borderRadius: "26px",
   padding: "25px",
-  marginTop: "25px",
-  boxShadow: "0 4px 18px #ddd",
+  boxShadow: "0 5px 22px rgba(20, 25, 50, 0.12)",
+  minHeight: "calc(100vh - 160px)",
+  overflowX: "auto",
 };
 
 const calendarHeader = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
+  gap: "18px",
+  flexWrap: "wrap",
+};
+
+const monthControls = {
+  minWidth: "260px",
+  display: "flex",
+  alignItems: "center",
+  gap: "14px",
+};
+
+const monthTitle = {
+  minWidth: 0,
+  margin: 0,
+  color: "#111735",
+  whiteSpace: "nowrap",
+};
+
+const viewControls = {
+  display: "flex",
+  gap: "10px",
+  flexShrink: 0,
 };
 
 const normalBtn = {
-  padding: "8px 18px",
+  minHeight: "40px",
+  padding: "0 18px",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "8px",
   borderRadius: "8px",
   border: "1px solid #d4d8e8",
   background: "white",
+  color: "#111735",
+  fontWeight: "600",
   cursor: "pointer",
+  whiteSpace: "nowrap",
+};
+
+const iconBtn = {
+  ...normalBtn,
+  width: "42px",
+  padding: 0,
 };
 
 const activeBtn = {
@@ -571,6 +555,10 @@ const monthDay = {
   borderRadius: "12px",
   padding: "12px",
   cursor: "pointer",
+};
+
+const blankMonthDay = {
+  minHeight: "100px",
 };
 
 const selectedMonthDay = {

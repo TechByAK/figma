@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import AppIcon from "../components/AppIcon";
+import DesktopLayout from "../components/DesktopLayout";
 
 function Settings() {
   const navigate = useNavigate();
@@ -9,57 +11,56 @@ function Settings() {
   }
 
   return (
-    <div style={page}>
-      <h1>Settings</h1>
-      <p>Manage your profile and app preferences.</p>
+    <DesktopLayout>
+      <section style={panel}>
+        <h1 style={title}>Settings</h1>
+        <p style={text}>Manage your profile and app preferences.</p>
 
-      <button
-  onClick={() => navigate("/app")}
-  style={{
-    background: "#081a4a",
-    color: "white",
-    border: "none",
-    borderRadius: "18px",
-    padding: "16px 28px",
-    fontSize: "18px",
-    fontWeight: "600",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    boxShadow: "0 6px 18px rgba(8,26,74,0.18)",
-    minHeight: "58px"
-  }}
->
-  🏠 Back Home
-</button>
-      <button
-  onClick={() => {
-    localStorage.removeItem("user");
-    navigate("/login");
-  }}
-  style={{
-    background: "#ff5757",
-    color: "white",
-    border: "none",
-    borderRadius: "18px",
-    padding: "16px 28px",
-    fontSize: "18px",
-    fontWeight: "600",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    boxShadow: "0 6px 18px rgba(255,87,87,0.25)",
-    minHeight: "58px"
-  }}
->
-  🚪 Logout
-</button>
-    </div>
+        <button onClick={logout} style={dangerButton}>
+          <AppIcon name="logout" size={21} />
+          <span>Logout</span>
+        </button>
+      </section>
+    </DesktopLayout>
   );
 }
 
-const page = { padding: "30px", fontFamily: "Arial" };
+const panel = {
+  background: "white",
+  borderRadius: "26px",
+  padding: "28px",
+  minHeight: "calc(100vh - 160px)",
+  boxShadow: "0 5px 22px rgba(20, 25, 50, 0.12)",
+};
+
+const title = {
+  margin: "0 0 14px",
+  lineHeight: 1.15,
+  color: "#111735",
+};
+
+const text = {
+  margin: 0,
+  lineHeight: 1.6,
+  color: "#596080",
+  fontSize: "17px",
+};
+
+const dangerButton = {
+  marginTop: "20px",
+  minHeight: "52px",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "10px",
+  background: "#ff5757",
+  color: "white",
+  border: 0,
+  borderRadius: "14px",
+  padding: "0 20px",
+  fontSize: "16px",
+  fontWeight: "700",
+  cursor: "pointer",
+  boxShadow: "0 6px 18px rgba(255, 87, 87, 0.22)",
+};
 
 export default Settings;
