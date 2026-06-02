@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
+import ResponsiveDashboard from "./pages/ResponsiveDashboard";
+import ResponsiveCalendar from "./pages/ResponsiveCalendar";
 import Home from "./pages/Home";
 import Calendar from "./pages/Calendar";
 import Dashboard from "./pages/Dashboard";
@@ -10,18 +12,23 @@ import News from "./pages/News";
 import Settings from "./pages/Settings";
 import Notifications from "./pages/Notifications";
 import "./App.css";
-import ResponsiveRedirect from "./components/ResponsiveRedirect";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<ResponsiveRedirect />} />
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
+
+        <Route path="/app" element={<ResponsiveDashboard />} />
+        <Route path="/schedule" element={<ResponsiveCalendar />} />
+
         <Route path="/home" element={<Home />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/desktop-calendar" element={<DesktopCalendar />} />
+        <Route path="/schedule" element={<ResponsiveCalendar />} />
+
         <Route path="/studies" element={<Studies />} />
         <Route path="/help" element={<Help />} />
         <Route path="/news" element={<News />} />

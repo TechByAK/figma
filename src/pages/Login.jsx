@@ -5,7 +5,7 @@ function Login() {
 
   function loginAs(user) {
     localStorage.setItem("user", user);
-    navigate("/home");
+    navigate("/app");
   }
 
   return (

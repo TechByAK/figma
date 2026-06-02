@@ -46,8 +46,38 @@ function Home() {
           <p style={{ color: "#6b7190" }}>
             We are delighted to welcome you to this space dedicated to your academic and personal success.
           </p>
-          <button>Campus map</button>
-          <button style={{ marginLeft: "10px" }}>School services</button>
+          <button
+  style={{
+    background:"#7fd9ff",
+    color:"#081a4a",
+    border:"none",
+    borderRadius:"18px",
+    padding:"16px 28px",
+    fontSize:"10px",
+    fontWeight:"600",
+    cursor:"pointer",
+    boxShadow:"0 4px 14px rgba(127,217,255,0.35)"
+  }}
+>
+  Campus map
+</button>
+
+<button
+  style={{
+    marginLeft:"20px",
+    background:"#7fd9ff",
+    color:"#081a4a",
+    border:"none",
+    borderRadius:"18px",
+    padding:"16px 28px",
+    fontSize:"10px",
+    fontWeight:"600",
+    cursor:"pointer",
+    boxShadow:"0 4px 14px rgba(127,217,255,0.35)"
+  }}
+>
+   School services
+</button>
         </div>
       </div>
 
@@ -82,24 +112,16 @@ function BottomNav({ navigate }) {
           if (window.innerWidth >= 900) {
             navigate("/dashboard");
           } else {
-            navigate("/home");
+            navigate("/app");
           }
         }}
       >
         𓃑<br />Dashboard
       </div>
 
-      <div
-        onClick={() => {
-          if (window.innerWidth >= 900) {
-            navigate("/desktop-calendar");
-          } else {
-            navigate("/calendar");
-          }
-        }}
-      >
-        🗓️<br />Schedule
-      </div>
+      <div onClick={() => navigate("/schedule")}>
+    🗓️<br />Schedule
+    </div>
 
       <div onClick={() => navigate("/studies")}>
         🎓<br />Studies
