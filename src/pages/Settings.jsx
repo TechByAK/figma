@@ -42,7 +42,7 @@ const title = {
 const text = {
   margin: 0,
   lineHeight: 1.6,
-  color: "#596080",
+  color: "#111735",
   fontSize: "17px",
 };
 

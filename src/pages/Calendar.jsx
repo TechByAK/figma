@@ -110,7 +110,7 @@ function Calendar() {
       {user === "guest" ? (
         <div style={emptyCard}>
           <h2>No schedule available</h2>
-          <p style={{ color: "#6b7190" }}>
+          <p style={{ color: "#111735" }}>
             Guest users do not have access to a personal calendar.
           </p>
         </div>
@@ -215,7 +215,7 @@ function ScheduleForDay({ selectedDay }) {
 
       <div style={emptyCard}>
         <h2>No events for this day</h2>
-        <p style={{ color: "#6b7190" }}>
+        <p style={{ color: "#111735" }}>
           There are no scheduled classes on Day {selectedDay}.
         </p>
       </div>
@@ -249,7 +249,7 @@ function CourseCard({ title, location, time, color, cancelled }) {
     >
       <h2 style={{ marginTop: 0 }}>{title}</h2>
 
-      <p style={{ color: cancelled ? "#ff6b6b" : "#596080" }}>
+      <p style={{ color: cancelled ? "#ff6b6b" : "#111735" }}>
         {location}
       </p>
 
@@ -354,7 +354,7 @@ const dayStyle = {
   background: "transparent",
   cursor: "pointer",
   textAlign: "center",
-  color: "#596080",
+  color: "#111735",
   font: "inherit",
 };
 
@@ -368,7 +368,7 @@ const selectedDayStyle = {
 const emptyDayStyle = {
   ...dayStyle,
   cursor: "default",
-  color: "#c8ccda",
+  color: "#111735",
 };
 
 const timeline = {
@@ -384,7 +384,7 @@ const timeRow = {
 const timeLabel = {
   width: "75px",
   fontSize: "18px",
-  color: "#8a90a5",
+  color: "#111735",
   paddingTop: "16px",
 };
 
@@ -419,7 +419,7 @@ const bottomNav = {
   gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
   padding: "14px 0 16px",
   boxShadow: "0 -4px 18px #ddd",
-  color: "#9aa0b5",
+  color: "#111735",
   textAlign: "center",
 };
 

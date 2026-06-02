@@ -17,7 +17,7 @@ function Dashboard() {
 
               {user === "guest" ? (
                 <div style={emptyCourse}>
-                  <AppIcon name="calendar" size={42} color="#6b6677" />
+                  <AppIcon name="calendar" size={42} color="#111735" />
                   <h3>No courses available</h3>
                   <p>Guest users do not have a personal schedule.</p>
                 </div>
@@ -134,7 +134,7 @@ const nextCourseBox = {
 
 const sectionTitle = {
   textAlign: "center",
-  color: "#6b6677",
+  color: "#111735",
   marginTop: 0,
 };
 
@@ -143,7 +143,7 @@ const emptyCourse = {
   padding: "28px",
   borderRadius: "18px",
   textAlign: "center",
-  color: "#6b6677",
+  color: "#111735",
   marginTop: "25px",
 };
 
@@ -176,7 +176,7 @@ const activeTab = {
 };
 
 const inactiveTab = {
-  color: "gray",
+  color: "#111735",
   margin: 0,
   cursor: "pointer",
 };
@@ -205,7 +205,7 @@ const welcomeTitle = {
 };
 
 const welcomeText = {
-  color: "#596080",
+  color: "#111735",
   fontSize: "16px",
   lineHeight: "1.6",
   marginTop: "28px",

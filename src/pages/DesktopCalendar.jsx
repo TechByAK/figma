@@ -392,7 +392,7 @@ function EventCard({ title, time, color, cancelled }) {
     >
       <b>{title}</b>
 
-      <p style={{ margin: "8px 0 0", color: cancelled ? "#ff6b6b" : "#596080" }}>
+      <p style={{ margin: "8px 0 0", color: cancelled ? "#ff6b6b" : "#111735" }}>
         {time}
       </p>
     </div>
@@ -485,7 +485,7 @@ const timeRow = {
 
 const timeLabel = {
   width: "90px",
-  color: "#8a90a5",
+  color: "#111735",
   paddingTop: "15px",
 };
 
@@ -503,7 +503,7 @@ const weekDays = {
 
 const dayCell = {
   padding: "12px",
-  color: "#596080",
+  color: "#111735",
   cursor: "pointer",
 };
 
@@ -527,7 +527,7 @@ const gridRow = {
 };
 
 const gridTime = {
-  color: "#8a90a5",
+  color: "#111735",
   paddingTop: "15px",
 };
 
@@ -581,7 +581,7 @@ const emptyMessage = {
   padding: "20px",
   borderRadius: "12px",
   textAlign: "center",
-  color: "#6b7190",
+  color: "#111735",
 };
 
 export default DesktopCalendar;

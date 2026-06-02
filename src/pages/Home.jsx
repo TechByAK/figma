@@ -15,7 +15,7 @@ function Home() {
         <div style={profile}>
           <img src={avatar} style={avatarStyle} />
           <div>
-            <p style={{ margin: 0, color: "#6b7190", fontSize: "22px" }}>Hi</p>
+            <p style={{ margin: 0, color: "#111735", fontSize: "22px" }}>Hi</p>
             <h1 style={{ margin: 0 }}>{name}!</h1>
           </div>
         </div>
@@ -43,12 +43,12 @@ function Home() {
             <p>3 PM → 5 PM</p>
           </div>
 
-          <h3 style={{ color: "#9aa0b5" }}>2h.</h3>
+          <h3 style={{ color: "#111735" }}>2h.</h3>
         </div>
 
         <div style={welcomeCard}>
           <h2>Welcome to Rennes School of Business!</h2>
-          <p style={{ color: "#6b7190" }}>
+          <p style={{ color: "#111735" }}>
             We are delighted to welcome you to this space dedicated to your academic and personal success.
           </p>
           <div style={welcomeActions}>
@@ -68,7 +68,7 @@ function Home() {
       <div style={eventsHeader}>
         <div style={{ display: "flex", gap: "35px" }}>
           <h2 style={{ borderBottom: "4px solid #111735" }}>Events</h2>
-          <h2 style={{ color: "#6b7190", cursor: "pointer" }} onClick={() => navigate("/news")}>
+          <h2 style={{ color: "#111735", cursor: "pointer" }} onClick={() => navigate("/news")}>
             News
           </h2>
         </div>
@@ -136,7 +136,7 @@ const welcomeActions = { display: "grid", gridTemplateColumns: "repeat(2, minmax
 const welcomeButton = { minHeight: "52px", background:"#7fd9ff", color:"#081a4a", border:"none", borderRadius:"16px", padding:"0 14px", fontSize:"14px", fontWeight:"700", cursor:"pointer", boxShadow:"0 4px 14px rgba(127,217,255,0.35)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", whiteSpace: "nowrap" };
 const eventsHeader = { display: "flex", justifyContent: "space-between", alignItems: "center" };
 const eventImg = { width: "100%", borderRadius: "18px", marginTop: "25px" };
-const bottomNav = { position: "fixed", bottom: 0, left: 0, right: 0, background: "white", display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", padding: "14px 0 16px", boxShadow: "0 -4px 18px #ddd", color: "#9aa0b5" };
+const bottomNav = { position: "fixed", bottom: 0, left: 0, right: 0, background: "white", display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", padding: "14px 0 16px", boxShadow: "0 -4px 18px #ddd", color: "#111735" };
 const navItem = { minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", fontSize: "12px", fontWeight: "600", cursor: "pointer" };
 const activeNav = { ...navItem, color: "#111735" };
 
