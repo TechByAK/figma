@@ -6,13 +6,24 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
+
+      workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true
+      },
+
+      devOptions: {
+        enabled: false
+      },
+
       manifest: {
         name: "Rennes School App",
         short_name: "Rennes",
         description: "Student dashboard and calendar app",
         theme_color: "#00337a",
-        background_color: "#00337a",
+        background_color: "#ffffff",
         display: "standalone",
         orientation: "any",
         start_url: "/",
