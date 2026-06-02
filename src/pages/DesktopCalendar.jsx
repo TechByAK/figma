@@ -28,7 +28,7 @@ function DesktopCalendar() {
               onClick={() => navigate("/dashboard")}
               style={{ cursor:"pointer", color:"gray" }}
             >
-              ⊞<br/>Dashboard
+              𓃑<br/>Dashboard
             </p>
 
             <p>

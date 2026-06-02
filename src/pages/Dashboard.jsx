@@ -11,7 +11,7 @@ function Dashboard() {
           <img src="/images/Frame-desktop.png" style={{ width: "90px" }} />
 
           <div style={{ marginTop: "60px" }}>
-            <p><b>⊞<br />Dashboard</b></p>
+            <p><b>𓃑<br />Dashboard</b></p>
             <p onClick={() => navigate("/desktop-calendar")} style={{ cursor: "pointer", color: "gray" }}>🗓️<br />Schedule</p>
             <p style={{ color: "gray" }}>🎓<br />Studies</p>
             <p style={{ color: "gray" }}>❔<br />Help</p>

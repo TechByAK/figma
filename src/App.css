@@ -181,4 +181,323 @@
     right: 0;
     border-right-color: var(--border);
   }
+
+  * {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  h1 {
+    font-size: 32px !important;
+  }
+
+  h2 {
+    font-size: 22px !important;
+  }
+
+  button {
+    font-size: 16px;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-page {
+    width: 100% !important;
+    padding: 20px !important;
+  }
+
+  .mobile-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .bottom-nav {
+    font-size: 14px !important;
+  }
+
+  .loading-screen {
+  height: 100vh;
+  background: #00337a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-logo {
+  width: 180px;
+}
+
+.home-page {
+  padding: 32px;
+  padding-bottom: 120px;
+  background: white;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+}
+
+.profile-box {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+}
+
+.hi-text {
+  margin: 0;
+  color: #6b7190;
+  font-size: 24px;
+}
+
+.home-header h1 {
+  margin: 0;
+  color: #111735;
+  font-size: 42px;
+}
+
+.header-icons {
+  display: flex;
+  gap: 15px;
+}
+
+.header-icons button {
+  border: none;
+  background: #f4f5f8;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  font-size: 24px;
+}
+
+.cards-wrapper {
+  background: #f4f4f6;
+  padding: 16px;
+  border-radius: 28px;
+  margin-bottom: 60px;
+}
+
+.course-card {
+  background: white;
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  box-shadow: 0 4px 15px #ddd;
+}
+
+.date-box {
+  background: #fde6f3;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  color: #7a0b4f;
+}
+
+.date-box span {
+  display: block;
+}
+
+.date-box strong {
+  font-size: 44px;
+}
+
+.course-info {
+  flex: 1;
+}
+
+.course-info h2 {
+  margin: 0;
+  color: #111735;
+}
+
+.location {
+  margin: 10px 0;
+  color: #007c8c;
+}
+
+.course-card h3 {
+  color: #9aa0b5;
+}
+
+.welcome-card {
+  background: white;
+  border-radius: 18px;
+  padding: 25px;
+  margin-top: 20px;
+  box-shadow: 0 4px 15px #ddd;
+}
+
+.welcome-title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.welcome-title h2 {
+  margin: 0;
+  color: #111735;
+}
+
+.welcome-title span {
+  font-size: 30px;
+  color: #6b7190;
+}
+
+.welcome-card p {
+  color: #6b7190;
+  font-size: 20px;
+}
+
+.welcome-card button {
+  margin-right: 10px;
+}
+
+.events-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.event-tabs {
+  display: flex;
+  gap: 35px;
+}
+
+.event-tabs h2 {
+  margin: 0;
+  border-bottom: 4px solid #111735;
+}
+
+.event-tabs .inactive {
+  color: #6b7190;
+  border-bottom: none;
+}
+
+.see-all {
+  margin: 0;
+  color: #00a8c8;
+  font-weight: normal;
+}
+
+.event-img {
+  width: 100%;
+  border-radius: 18px;
+  margin-top: 25px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 22px 0;
+  box-shadow: 0 -4px 18px #ddd;
+  color: #9aa0b5;
+}
+
+.bottom-nav div {
+  text-align: center;
+  cursor: pointer;
+}
+
+.bottom-nav .active-nav {
+  color: #111735;
+}
+
+/* Mobile responsive fix */
+@media (max-width: 600px) {
+  .home-page {
+    padding: 18px;
+    padding-bottom: 110px;
+  }
+
+  .home-header h1 {
+    font-size: 30px;
+  }
+
+  .hi-text {
+    font-size: 18px;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .header-icons button {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+  }
+
+  .course-card {
+    gap: 12px;
+  }
+
+  .date-box {
+    padding: 12px;
+  }
+
+  .date-box strong {
+    font-size: 32px;
+  }
+
+  .course-info h2 {
+    font-size: 20px;
+  }
+
+  .course-info p {
+    font-size: 14px;
+  }
+
+  .course-card h3 {
+    font-size: 18px;
+  }
+
+  .welcome-card {
+    padding: 18px;
+  }
+
+  .welcome-title h2 {
+    font-size: 21px;
+  }
+
+  .welcome-card p {
+    font-size: 16px;
+  }
+
+  .events-top h2 {
+    font-size: 22px;
+  }
+
+  .bottom-nav {
+    font-size: 13px;
+  }
+}
+}
+
 }
