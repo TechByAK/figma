@@ -6,18 +6,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: "prompt",
-
-      workbox: {
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true
-      },
-
-      devOptions: {
-        enabled: false
-      },
-
+      registerType: "autoUpdate",
       manifest: {
         name: "Rennes School App",
         short_name: "Rennes",
@@ -28,7 +17,6 @@ export default defineConfig({
         orientation: "any",
         start_url: "/",
         scope: "/",
-
         icons: [
           {
             src: "/images/Frame-desktop.png",

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import ResponsiveDashboard from "./pages/ResponsiveDashboard";
 import ResponsiveCalendar from "./pages/ResponsiveCalendar";
@@ -17,7 +17,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<login/>} />
+        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
 
         <Route path="/app" element={<ResponsiveDashboard />} />
@@ -27,7 +27,6 @@ function App() {
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/desktop-calendar" element={<DesktopCalendar />} />
-        <Route path="/schedule" element={<ResponsiveCalendar />} />
 
         <Route path="/studies" element={<Studies />} />
         <Route path="/help" element={<Help />} />
