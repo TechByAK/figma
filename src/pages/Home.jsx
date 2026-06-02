@@ -75,10 +75,40 @@ function Home() {
 function BottomNav({ navigate }) {
   return (
     <div style={bottomNav}>
-      <div style={activeNav} onClick={() => navigate("/home")}>𓃑<br />Dashboard</div>
-      <div onClick={() => navigate("/calendar")}>🗓️<br />Schedule</div>
-      <div onClick={() => navigate("/studies")}>🎓<br />Studies</div>
-      <div onClick={() => navigate("/help")}>❔<br />Help</div>
+
+      <div
+        style={activeNav}
+        onClick={() => {
+          if (window.innerWidth >= 900) {
+            navigate("/dashboard");
+          } else {
+            navigate("/home");
+          }
+        }}
+      >
+        𓃑<br />Dashboard
+      </div>
+
+      <div
+        onClick={() => {
+          if (window.innerWidth >= 900) {
+            navigate("/desktop-calendar");
+          } else {
+            navigate("/calendar");
+          }
+        }}
+      >
+        🗓️<br />Schedule
+      </div>
+
+      <div onClick={() => navigate("/studies")}>
+        🎓<br />Studies
+      </div>
+
+      <div onClick={() => navigate("/help")}>
+        ❔<br />Help
+      </div>
+
     </div>
   );
 }

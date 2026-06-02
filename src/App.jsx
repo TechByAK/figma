@@ -10,12 +10,13 @@ import News from "./pages/News";
 import Settings from "./pages/Settings";
 import Notifications from "./pages/Notifications";
 import "./App.css";
+import ResponsiveRedirect from "./components/ResponsiveRedirect";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<ResponsiveRedirect />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/calendar" element={<Calendar />} />
