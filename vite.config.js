@@ -14,17 +14,22 @@ export default defineConfig({
         theme_color: "#00337a",
         background_color: "#00337a",
         display: "standalone",
-        start_url: "/",
+        orientation: "any",
+        start_url: "/login",
+        scope: "/",
+
         icons: [
           {
             src: "/images/Frame-desktop.png",
             sizes: "192x192",
-            type: "image/png"
+            type: "image/png",
+            purpose: "any maskable"
           },
           {
             src: "/images/Frame-desktop.png",
             sizes: "512x512",
-            type: "image/png"
+            type: "image/png",
+            purpose: "any maskable"
           }
         ]
       }
