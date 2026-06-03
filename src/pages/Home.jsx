@@ -66,16 +66,16 @@ function Home() {
       </div>
 
       <div style={eventsHeader}>
-        <div style={{ display: "flex", gap: "35px" }}>
-          <h2 style={{ borderBottom: "4px solid #111735" }}>Events</h2>
-          <h2 style={{ color: "#111735", cursor: "pointer" }} onClick={() => navigate("/news")}>
+        <div style={eventTabs}>
+          <h2 style={activeEventTab}>Events</h2>
+          <h2 style={eventTab} onClick={() => navigate("/news")}>
             News
           </h2>
         </div>
 
-        <h2 style={{ color: "#00a8c8", cursor: "pointer" }} onClick={() => navigate("/news")}>
+        <button style={seeAllButton} onClick={() => navigate("/news")}>
           See All
-        </h2>
+        </button>
       </div>
 
       <img src="/images/event1.png" style={eventImg} />
@@ -134,7 +134,11 @@ const dateBox = { background: "#fde6f3", borderRadius: "12px", padding: "18px", 
 const welcomeCard = { background: "white", borderRadius: "18px", padding: "25px", marginTop: "20px", boxShadow: "0 4px 15px #ddd" };
 const welcomeActions = { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px", marginTop: "18px" };
 const welcomeButton = { minHeight: "52px", background:"#7fd9ff", color:"#081a4a", border:"none", borderRadius:"16px", padding:"0 14px", fontSize:"14px", fontWeight:"700", cursor:"pointer", boxShadow:"0 4px 14px rgba(127,217,255,0.35)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", whiteSpace: "nowrap" };
-const eventsHeader = { display: "flex", justifyContent: "space-between", alignItems: "center" };
+const eventsHeader = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "14px", marginBottom: "2px" };
+const eventTabs = { minWidth: 0, display: "flex", alignItems: "center", gap: "18px", flexWrap: "wrap" };
+const activeEventTab = { margin: 0, borderBottom: "4px solid #111735", color: "#111735", fontSize: "22px", lineHeight: 1.2 };
+const eventTab = { margin: 0, color: "#111735", cursor: "pointer", fontSize: "22px", lineHeight: 1.2 };
+const seeAllButton = { flexShrink: 0, minHeight: "40px", border: 0, borderRadius: "12px", background: "#e8faff", color: "#006f86", padding: "0 12px", fontSize: "16px", fontWeight: "800", cursor: "pointer", whiteSpace: "nowrap" };
 const eventImg = { width: "100%", borderRadius: "18px", marginTop: "25px" };
 const bottomNav = { position: "fixed", bottom: 0, left: 0, right: 0, background: "white", display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", padding: "14px 0 16px", boxShadow: "0 -4px 18px #ddd", color: "#111735" };
 const navItem = { minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", fontSize: "12px", fontWeight: "600", cursor: "pointer" };

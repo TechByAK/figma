@@ -1,8 +1,27 @@
 import { useNavigate } from "react-router-dom";
 import DesktopLayout from "../components/DesktopLayout";
+import MobilePageLayout from "../components/MobilePageLayout";
+import useScreenSize from "../hooks/useScreenSize";
 
 function News() {
   const navigate = useNavigate();
+  const isDesktop = useScreenSize();
+
+  if (!isDesktop) {
+    return (
+      <MobilePageLayout title="News & Events">
+        <div style={mobileCard}>
+          <h2 style={cardTitle}>Conference with Thibault Cauvin</h2>
+          <p style={cardText}>Upcoming event at Rennes School of Business.</p>
+        </div>
+
+        <div style={mobileCard}>
+          <h2 style={cardTitle}>Student Life Update</h2>
+          <p style={cardText}>New activities and campus events are available.</p>
+        </div>
+      </MobilePageLayout>
+    );
+  }
 
   return (
     <DesktopLayout>
@@ -54,6 +73,27 @@ const card = {
   padding: "20px",
   borderRadius: "16px",
   marginBottom: "20px",
+};
+
+const mobileCard = {
+  background: "#f5f6fa",
+  padding: "18px",
+  borderRadius: "16px",
+  marginBottom: "14px",
+  color: "#111735",
+};
+
+const cardTitle = {
+  margin: "0 0 8px",
+  fontSize: "20px",
+  lineHeight: 1.25,
+  color: "#111735",
+};
+
+const cardText = {
+  margin: 0,
+  lineHeight: 1.5,
+  color: "#111735",
 };
 
 const linkButton = {
