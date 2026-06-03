@@ -97,7 +97,12 @@ function HelpContent({ isDesktop, user }) {
               style={sectionToggle}
               type="button"
             >
-              <span style={sectionTitle}>Submit a request</span>
+              <span style={requestTitleWrap}>
+                <span style={requestIcon}>
+                  <AppIcon name="send" size={18} />
+                </span>
+                <span style={requestTitleText}>Submit a request</span>
+              </span>
               <AppIcon name={isRequestOpen ? "chevronUp" : "chevronDown"} size={21} />
             </button>
 
@@ -504,6 +509,33 @@ const sectionToggle = {
   padding: 0,
   cursor: "pointer",
   textAlign: "left",
+};
+
+const requestTitleWrap = {
+  minWidth: 0,
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "10px",
+};
+
+const requestIcon = {
+  width: "38px",
+  height: "38px",
+  flexShrink: 0,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: "12px",
+  color: "#1f57d6",
+  background: "#eef4ff",
+};
+
+const requestTitleText = {
+  color: "#111735",
+  fontSize: "19px",
+  fontWeight: "800",
+  lineHeight: 1.2,
+  overflowWrap: "anywhere",
 };
 
 const faqGrid = {

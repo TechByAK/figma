@@ -40,7 +40,6 @@ function CampusMapContent({ isDesktop, onBack }) {
       <div style={header}>
         <div>
           <p style={eyebrow}>Rennes School of Business</p>
-          <h1 style={title}>Campus map</h1>
         </div>
 
         <a href={directionsUrl} target="_blank" rel="noreferrer" style={directionsButton}>
@@ -118,6 +117,7 @@ const header = {
   justifyContent: "space-between",
   gap: "14px",
   flexWrap: "wrap",
+  textAlign: "center",
   marginBottom: "18px",
 };
 
@@ -126,13 +126,6 @@ const eyebrow = {
   color: "#1f57d6",
   fontSize: "14px",
   fontWeight: "800",
-};
-
-const title = {
-  margin: 0,
-  color: "#111735",
-  fontSize: "clamp(26px, 4vw, 36px)",
-  lineHeight: 1.12,
 };
 
 const backRow = {

@@ -42,9 +42,9 @@ function ServicesContent({ isDesktop, onBack, services }) {
           <span>Back</span>
         </button>
         <p style={eyebrow}>Rennes School of Business</p>
-        <h1 style={title}>School services</h1>
         <p style={intro}>
-          Find the right department, contact details, and support hours for your profile.
+          <span style={noteMark}>*</span>
+          <span>Find the right department, contact details, and support hours for your profile.</span>
         </p>
       </div>
 
@@ -295,6 +295,7 @@ const mobilePanel = {
 
 const pageHeader = {
   marginBottom: "18px",
+  textAlign: "center",
 };
 
 const eyebrow = {
@@ -302,13 +303,6 @@ const eyebrow = {
   color: "#1f57d6",
   fontSize: "14px",
   fontWeight: "800",
-};
-
-const title = {
-  margin: 0,
-  color: "#111735",
-  fontSize: "clamp(26px, 4vw, 36px)",
-  lineHeight: 1.12,
 };
 
 const backButton = {
@@ -330,10 +324,19 @@ const backButton = {
 
 const intro = {
   maxWidth: "720px",
-  margin: "10px 0 0",
-  color: "#111735",
-  fontSize: "16px",
-  lineHeight: 1.55,
+  margin: "8px auto 0",
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "center",
+  gap: "6px",
+  borderRadius: "12px",
+  padding: "9px 11px",
+  background: "#f9fbff",
+  color: "#5f6b86",
+  fontSize: "13px",
+  fontWeight: "700",
+  lineHeight: 1.4,
+  overflowWrap: "anywhere",
 };
 
 const servicesGrid = {
