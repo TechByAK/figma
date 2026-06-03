@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AppIcon from "../components/AppIcon";
 import DesktopLayout from "../components/DesktopLayout";
+import ScheduleEventForm from "../components/ScheduleEventForm";
 import {
   MONTHS_2026,
   WEEKDAY_LABELS,
@@ -8,23 +9,41 @@ import {
   getMondayFirstWeekdayIndex,
   getVisibleWeekDays2026,
 } from "../utils/calendar2026";
+import {
+  SCHEDULE_HOURS,
+  clearScheduleForUser,
+  deleteScheduleEvent,
+  getEventsForDay,
+  getEventSpan,
+} from "../utils/schedules";
 
 function DesktopCalendar() {
+  const user = localStorage.getItem("user") || "guest";
   const [view, setView] = useState("week");
   const [monthIndex, setMonthIndex] = useState(1);
   const [selectedDay, setSelectedDay] = useState(16);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [scheduleVersion, setScheduleVersion] = useState(0);
+  const [editingEvent, setEditingEvent] = useState(null);
+  const monthLength = getDaysInMonth2026(monthIndex);
+
+  function selectDay(day) {
+    setSelectedDay(day);
+    setSelectedEvent(null);
+    setEditingEvent(null);
+  }
 
   function nextMonth() {
     if (monthIndex < MONTHS_2026.length - 1) {
       setMonthIndex(monthIndex + 1);
-      setSelectedDay(1);
+      selectDay(1);
     }
   }
 
   function previousMonth() {
     if (monthIndex > 0) {
       setMonthIndex(monthIndex - 1);
-      setSelectedDay(1);
+      selectDay(1);
     }
   }
 
@@ -32,19 +51,19 @@ function DesktopCalendar() {
     const monthLength = getDaysInMonth2026(monthIndex);
 
     if (selectedDay < monthLength) {
-      setSelectedDay(selectedDay + 1);
+      selectDay(selectedDay + 1);
       return;
     }
 
     if (monthIndex < MONTHS_2026.length - 1) {
       setMonthIndex(monthIndex + 1);
-      setSelectedDay(1);
+      selectDay(1);
     }
   }
 
   function previousDay() {
     if (selectedDay > 1) {
-      setSelectedDay(selectedDay - 1);
+      selectDay(selectedDay - 1);
       return;
     }
 
@@ -52,7 +71,34 @@ function DesktopCalendar() {
       const previousMonthIndex = monthIndex - 1;
 
       setMonthIndex(previousMonthIndex);
-      setSelectedDay(getDaysInMonth2026(previousMonthIndex));
+      selectDay(getDaysInMonth2026(previousMonthIndex));
+    }
+  }
+
+  function nextWeek() {
+    if (selectedDay + 7 <= monthLength) {
+      selectDay(selectedDay + 7);
+      return;
+    }
+
+    if (monthIndex < MONTHS_2026.length - 1) {
+      setMonthIndex(monthIndex + 1);
+      selectDay(Math.min(7 - (monthLength - selectedDay), getDaysInMonth2026(monthIndex + 1)));
+    }
+  }
+
+  function previousWeek() {
+    if (selectedDay > 7) {
+      selectDay(selectedDay - 7);
+      return;
+    }
+
+    if (monthIndex > 0) {
+      const previousMonthIndex = monthIndex - 1;
+      const previousMonthLength = getDaysInMonth2026(previousMonthIndex);
+
+      setMonthIndex(previousMonthIndex);
+      selectDay(previousMonthLength - (7 - selectedDay));
     }
   }
 
@@ -96,28 +142,94 @@ function DesktopCalendar() {
               </div>
             </div>
 
+            {user !== "guest" && user !== "naima" && (
+              <>
+                <ScheduleEventForm
+                  key={editingEvent?.id || "new"}
+                  day={selectedDay}
+                  editingEvent={editingEvent}
+                  monthLength={monthLength}
+                  user={user}
+                  onCancelEdit={() => {
+                    setEditingEvent(null);
+                    setSelectedEvent(null);
+                  }}
+                  onAdded={() => {
+                    setEditingEvent(null);
+                    setSelectedEvent(null);
+                    setScheduleVersion((version) => version + 1);
+                  }}
+                />
+                <div style={scheduleActions}>
+                  <button
+                    style={clearButton}
+                    onClick={() => {
+                      if (!selectedEvent) {
+                        return;
+                      }
+
+                      deleteScheduleEvent(user, selectedEvent.day || selectedDay, selectedEvent.id);
+                      setSelectedEvent(null);
+                      setEditingEvent(null);
+                      setScheduleVersion((version) => version + 1);
+                    }}
+                    disabled={!selectedEvent}
+                  >
+                    <AppIcon name="trash" size={21} />
+                  </button>
+                  <button
+                    style={clearAllButton}
+                    onClick={() => {
+                      clearScheduleForUser(user);
+                      setSelectedEvent(null);
+                      setEditingEvent(null);
+                      setScheduleVersion((version) => version + 1);
+                    }}
+                  >
+                    Clear all
+                  </button>
+                </div>
+              </>
+            )}
+
             {view === "day" && (
               <DayView
+                key={`day-${scheduleVersion}`}
                 selectedDay={selectedDay}
                 nextDay={nextDay}
                 previousDay={previousDay}
                 month={MONTHS_2026[monthIndex]}
+                onEdit={setEditingEvent}
+                onSelect={setSelectedEvent}
+                selectedEventId={selectedEvent?.id}
+                user={user}
               />
             )}
 
             {view === "week" && (
               <WeekView
+                key={`week-${scheduleVersion}`}
                 monthIndex={monthIndex}
+                nextWeek={nextWeek}
+                previousWeek={previousWeek}
                 selectedDay={selectedDay}
-                setSelectedDay={setSelectedDay}
+                setSelectedDay={selectDay}
+                onEdit={setEditingEvent}
+                onSelect={setSelectedEvent}
+                selectedEventId={selectedEvent?.id}
+                user={user}
               />
             )}
 
             {view === "month" && (
               <MonthView
+                key={`month-${scheduleVersion}`}
                 monthIndex={monthIndex}
                 selectedDay={selectedDay}
-                setSelectedDay={setSelectedDay}
+                setSelectedDay={selectDay}
+                onEdit={setEditingEvent}
+                onSelect={setSelectedEvent}
+                user={user}
               />
             )}
           </div>
@@ -127,7 +239,9 @@ function DesktopCalendar() {
 
 /* DAY VIEW */
 
-function DayView({ selectedDay, nextDay, previousDay, month }) {
+function DayView({ selectedDay, nextDay, previousDay, month, onEdit, onSelect, selectedEventId, user }) {
+  const events = getEventsForDay(user, selectedDay);
+
   return (
     <div>
       <div style={dayHeader}>
@@ -147,77 +261,29 @@ function DayView({ selectedDay, nextDay, previousDay, month }) {
       </div>
 
       <div style={dayTimeline}>
-        {selectedDay === 16 ? (
-          <>
-            <TimeRow time="9 AM">
-              <EventCard
-                title="Stellar Physics"
-                time="9:30 AM → 11:30 AM"
-                color="#45c9d8"
-              />
-            </TimeRow>
+        {SCHEDULE_HOURS.map((hour) => (
+          <TimeRow key={hour} time={hour}>
+            {events
+              .filter((event) => event.startHour === hour)
+              .map((event) => (
+                <EventCard
+                  key={`${event.title}-${event.time}`}
+                  title={event.title}
+                  time={event.time}
+                  color={event.color}
+                  cancelled={event.cancelled}
+                  event={{ ...event, day: selectedDay }}
+                  span={getEventSpan(event)}
+                  onEdit={onEdit}
+                  onSelect={onSelect}
+                  selected={selectedEventId === event.id}
+                />
+              ))}
+          </TimeRow>
+        ))}
 
-            <TimeRow time="10 AM" />
-            <TimeRow time="11 AM" />
-            <TimeRow time="12 PM" />
-
-            <TimeRow time="1 PM">
-              <EventCard title="Stellar Physics" time="1 PM → 3 PM" cancelled />
-            </TimeRow>
-
-            <TimeRow time="2 PM" />
-            <TimeRow time="3 PM" />
-            <TimeRow time="4 PM" />
-
-            <TimeRow time="5 PM">
-              <EventCard title="General relativity" time="5 PM → 6 PM" />
-            </TimeRow>
-
-            <TimeRow time="6 PM" />
-          </>
-        ) : selectedDay === 17 ? (
-          <>
-            <TimeRow time="9 AM">
-              <EventCard
-                title="Business Analytics"
-                time="9:30 AM → 11:30 AM"
-                color="#00c39a"
-              />
-            </TimeRow>
-
-            <TimeRow time="10 AM" />
-            <TimeRow time="11 AM" />
-            <TimeRow time="12 PM" />
-
-            <TimeRow time="1 PM" />
-            <TimeRow time="2 PM">
-              <EventCard
-                title="Change Management"
-                time="2 PM → 3 PM"
-                color="#00c39a"
-              />
-            </TimeRow>
-
-            <TimeRow time="3 PM" />
-            <TimeRow time="4 PM" />
-            <TimeRow time="5 PM" />
-            <TimeRow time="6 PM" />
-          </>
-        ) : (
-          <>
-            <TimeRow time="9 AM" />
-            <TimeRow time="10 AM" />
-            <TimeRow time="11 AM" />
-            <TimeRow time="12 PM" />
-            <TimeRow time="1 PM" />
-            <TimeRow time="2 PM" />
-            <TimeRow time="3 PM" />
-            <TimeRow time="4 PM" />
-            <TimeRow time="5 PM" />
-            <TimeRow time="6 PM" />
-
-            <div style={emptyMessage}>No events scheduled for this day.</div>
-          </>
+        {events.length === 0 && (
+          <div style={emptyMessage}>No events scheduled for this day.</div>
         )}
       </div>
     </div>
@@ -235,23 +301,22 @@ function TimeRow({ time, children }) {
 
 /* WEEK VIEW */
 
-function WeekView({ monthIndex, selectedDay, setSelectedDay }) {
+function WeekView({ monthIndex, nextWeek, previousWeek, selectedDay, setSelectedDay, onEdit, onSelect, selectedEventId, user }) {
   const days = getVisibleWeekDays2026(monthIndex, selectedDay);
-  const hours = [
-    "9 AM",
-    "10 AM",
-    "11 AM",
-    "12 PM",
-    "1 PM",
-    "2 PM",
-    "3 PM",
-    "4 PM",
-    "5 PM",
-    "6 PM",
-  ];
 
   return (
     <div style={{ marginTop: "40px" }}>
+      <div style={weekNav}>
+        <button onClick={previousWeek} style={normalBtn}>
+          <AppIcon name="arrowLeft" size={18} />
+          <span>Previous Week</span>
+        </button>
+        <button onClick={nextWeek} style={normalBtn}>
+          <span>Next Week</span>
+          <AppIcon name="arrowRight" size={18} />
+        </button>
+      </div>
+
       <div style={weekDays}>
         <div></div>
 
@@ -269,58 +334,38 @@ function WeekView({ monthIndex, selectedDay, setSelectedDay }) {
       </div>
 
       <div style={weekGrid}>
-        {hours.map((hour) => (
+        {SCHEDULE_HOURS.map((hour) => (
           <div key={hour} style={gridRow}>
             <div style={gridTime}>{hour}</div>
 
-            <div style={gridCell}></div>
-
-            <div style={gridCell}>
-              {hour === "9 AM" && (
-                <EventCard
-                  title="Stellar Physics"
-                  time="9:30 AM → 11:30 AM"
-                  color="#45c9d8"
-                />
-              )}
-
-              {hour === "1 PM" && (
-                <EventCard title="Stellar Physics" time="Cancelled" cancelled />
-              )}
-
-              {hour === "5 PM" && (
-                <EventCard title="General relativity" time="5 PM → 6 PM" />
-              )}
-            </div>
-
-            <div style={gridCell}>
-              {hour === "9 AM" && (
-                <EventCard
-                  title="Business Analytics"
-                  time="9:30 AM → 11:30 AM"
-                  color="#00c39a"
-                />
-              )}
-
-              {hour === "2 PM" && (
-                <EventCard
-                  title="Change Management"
-                  time="2 PM → 3 PM"
-                  color="#00c39a"
-                />
-              )}
-            </div>
-
-            <div style={gridCell}></div>
-
-            <div style={gridCell}>
-              {hour === "1 PM" && (
-                <EventCard title="Stellar Physics" time="9:30 AM → 11:30 AM" />
-              )}
-            </div>
-
-            <div style={gridCell}></div>
-            <div style={gridCell}></div>
+            {days.map((day) => (
+              <div key={`${day.label}-${day.number || "empty"}-${hour}`} style={gridCell}>
+                {day.number &&
+                  getEventsForDay(user, day.number)
+                    .filter((event) => event.startHour === hour)
+                    .map((event) => (
+                      <EventCard
+                        key={`${event.title}-${event.time}`}
+                        title={event.title}
+                        time={event.cancelled ? "Cancelled" : event.time}
+                        color={event.color}
+                        cancelled={event.cancelled}
+                        event={{ ...event, day: day.number }}
+                        span={getEventSpan(event)}
+                        selected={selectedEventId === event.id}
+                        onEdit={(nextEvent) => {
+                          setSelectedDay(day.number);
+                          onSelect(nextEvent);
+                          onEdit(nextEvent);
+                        }}
+                        onSelect={(nextEvent) => {
+                          setSelectedDay(day.number);
+                          onSelect(nextEvent);
+                        }}
+                      />
+                    ))}
+              </div>
+            ))}
           </div>
         ))}
       </div>
@@ -330,7 +375,7 @@ function WeekView({ monthIndex, selectedDay, setSelectedDay }) {
 
 /* MONTH VIEW */
 
-function MonthView({ monthIndex, selectedDay, setSelectedDay }) {
+function MonthView({ monthIndex, selectedDay, setSelectedDay, onSelect, user }) {
   const monthLength = getDaysInMonth2026(monthIndex);
   const leadingBlanks = getMondayFirstWeekdayIndex(monthIndex, 1);
   const cells = [
@@ -365,9 +410,20 @@ function MonthView({ monthIndex, selectedDay, setSelectedDay }) {
           >
             <strong>{cell.day}</strong>
 
-            {cell.day === 16 && <p>Stellar Physics</p>}
-            {cell.day === 17 && <p>Business Analytics</p>}
-            {cell.day === 19 && <p>Stellar Physics</p>}
+            {getEventsForDay(user, cell.day).map((event) => (
+              <p
+                key={`${event.title}-${event.time}`}
+                onClick={(clickEvent) => {
+                  clickEvent.stopPropagation();
+                  if (event.custom) {
+                    setSelectedDay(cell.day);
+                    onSelect({ ...event, day: cell.day });
+                  }
+                }}
+              >
+                {event.title}
+              </p>
+            ))}
           </div>
           )
         )}
@@ -378,23 +434,44 @@ function MonthView({ monthIndex, selectedDay, setSelectedDay }) {
 
 /* EVENT CARD */
 
-function EventCard({ title, time, color, cancelled }) {
+function EventCard({ title, time, color, cancelled, event, onEdit, onSelect, selected, span = 1 }) {
   return (
     <div
+      onClick={() => event?.custom && onSelect(event)}
       style={{
         ...eventCard,
-        border: cancelled
+        height: `${Math.max(1, span) * 92 - 16}px`,
+        top: "8px",
+        border: selected
+          ? "3px solid #081a4a"
+          : cancelled
           ? "3px solid #ff6b6b"
           : color
           ? `3px solid ${color}`
           : "1px solid #d4d8e8",
+        boxShadow: selected
+          ? "0 0 0 4px rgba(8, 26, 74, 0.12)"
+          : eventCard.boxShadow,
       }}
     >
-      <b>{title}</b>
+      <b style={eventTitle}>{title}</b>
 
-      <p style={{ margin: "8px 0 0", color: cancelled ? "#ff6b6b" : "#111735" }}>
+      <p style={{ ...eventText, color: cancelled ? "#ff6b6b" : "#111735" }}>
         {time}
       </p>
+
+      {event?.custom && (
+        <button
+          style={editButton}
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
+            onSelect(event);
+            onEdit(event);
+          }}
+        >
+          Edit
+        </button>
+      )}
     </div>
   );
 }
@@ -479,8 +556,9 @@ const dayTimeline = {
 
 const timeRow = {
   display: "flex",
-  minHeight: "80px",
+  height: "92px",
   borderTop: "1px solid #e4e7f0",
+  overflow: "visible",
 };
 
 const timeLabel = {
@@ -492,6 +570,8 @@ const timeLabel = {
 const timeContent = {
   flex: 1,
   padding: "10px",
+  position: "relative",
+  overflow: "visible",
 };
 
 const weekDays = {
@@ -505,6 +585,14 @@ const dayCell = {
   padding: "12px",
   color: "#111735",
   cursor: "pointer",
+};
+
+const weekNav = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "12px",
+  marginBottom: "18px",
 };
 
 const selectedDayBox = {
@@ -522,8 +610,9 @@ const weekGrid = {
 const gridRow = {
   display: "grid",
   gridTemplateColumns: "80px repeat(7, 1fr)",
-  minHeight: "85px",
+  height: "92px",
   borderTop: "1px solid #e4e7f0",
+  overflow: "visible",
 };
 
 const gridTime = {
@@ -533,6 +622,8 @@ const gridTime = {
 
 const gridCell = {
   padding: "8px",
+  position: "relative",
+  overflow: "visible",
 };
 
 const monthGridHeader = {
@@ -570,9 +661,79 @@ const selectedMonthDay = {
 const eventCard = {
   background: "white",
   borderRadius: "12px",
-  padding: "12px",
+  padding: "10px 60px 10px 10px",
   boxShadow: "0 4px 15px #ddd",
-  fontSize: "14px",
+  fontSize: "13px",
+  position: "absolute",
+  left: "8px",
+  right: "8px",
+  zIndex: 3,
+  overflow: "hidden",
+};
+
+const eventTitle = {
+  display: "block",
+  margin: "0 0 4px",
+  color: "#111735",
+  fontSize: "13px",
+  lineHeight: 1.15,
+};
+
+const eventText = {
+  margin: "2px 0 0",
+  color: "#111735",
+  fontSize: "12px",
+  lineHeight: 1.2,
+};
+
+const editButton = {
+  position: "absolute",
+  top: "8px",
+  right: "8px",
+  border: 0,
+  borderRadius: "10px",
+  background: "#081a4a",
+  color: "white",
+  padding: "6px 10px",
+  fontSize: "12px",
+  fontWeight: "800",
+  cursor: "pointer",
+  zIndex: 4,
+};
+
+const clearButton = {
+  width: "48px",
+  height: "48px",
+  minHeight: "48px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  margin: 0,
+  border: "1px solid #ff5757",
+  borderRadius: "50%",
+  background: "white",
+  color: "#d9234f",
+  fontWeight: "800",
+  cursor: "pointer",
+};
+
+const scheduleActions = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "10px",
+  marginBottom: "16px",
+};
+
+const clearAllButton = {
+  minHeight: "44px",
+  border: 0,
+  borderRadius: "12px",
+  background: "#d9234f",
+  color: "white",
+  padding: "0 16px",
+  fontWeight: "800",
+  cursor: "pointer",
 };
 
 const emptyMessage = {

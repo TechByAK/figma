@@ -11,6 +11,8 @@ import Help from "./pages/Help";
 import News from "./pages/News";
 import Settings from "./pages/Settings";
 import Notifications from "./pages/Notifications";
+import CampusMap from "./pages/CampusMap";
+import SchoolServices from "./pages/SchoolServices";
 import "./App.css";
 
 function App() {
@@ -33,6 +35,8 @@ function App() {
         <Route path="/news" element={<News />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/campus-map" element={<CampusMap />} />
+        <Route path="/school-services" element={<SchoolServices />} />
       </Routes>
     </BrowserRouter>
   );

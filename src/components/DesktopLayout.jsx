@@ -1,13 +1,14 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import AppIcon from "./AppIcon";
+import { getCurrentProfile, getRoleCopy } from "../utils/users";
 
 function DesktopLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const user = localStorage.getItem("user") || "guest";
-  const name = user === "naima" ? "Naima" : "Guest";
-  const avatar = user === "naima" ? "/images/naima-figma.png" : "/images/guest.png";
+  const profileData = getCurrentProfile();
+  const roleCopy = getRoleCopy();
+  const unreadCount = getUnreadNotificationCount(localStorage.getItem("user") || "guest");
 
   function logout() {
     localStorage.removeItem("user");
@@ -17,7 +18,7 @@ function DesktopLayout({ children }) {
   const navItems = [
     { path: "/app", icon: "dashboard", text: "Dashboard" },
     { path: "/schedule", icon: "calendar", text: "Schedule" },
-    { path: "/studies", icon: "school", text: "Studies" },
+    { path: "/studies", icon: "school", text: roleCopy.studiesLabel },
     { path: "/help", icon: "help", text: "Help" },
   ];
 
@@ -49,16 +50,16 @@ function DesktopLayout({ children }) {
       <main style={main}>
         <header style={header}>
           <div style={profile}>
-            <img src={avatar} style={avatarStyle} alt="" />
+            <img src={profileData.avatar} style={avatarStyle} alt="" />
 
             <div>
               <p style={hiText}>Hi</p>
-              <h1 style={nameTitle}>{name} !</h1>
+              <h1 style={nameTitle}>{profileData.name} !</h1>
             </div>
           </div>
 
           <div style={topButtons}>
-            <TopButton label="Notifications" onClick={() => navigate("/notifications")}>
+            <TopButton badge={unreadCount} label="Notifications" onClick={() => navigate("/notifications")}>
               <AppIcon name="bell" size={25} />
             </TopButton>
             <TopButton label="Settings" onClick={() => navigate("/settings")}>
@@ -100,12 +101,22 @@ function SideItem({ icon, text, onClick, active }) {
   );
 }
 
-function TopButton({ children, label, onClick }) {
+function TopButton({ badge = 0, children, label, onClick }) {
   return (
     <button onClick={onClick} style={topButton} aria-label={label} title={label}>
       {children}
+      {badge > 0 && <span style={badgeStyle}>{badge}</span>}
     </button>
   );
+}
+
+function getUnreadNotificationCount(user) {
+  try {
+    const readIds = JSON.parse(localStorage.getItem(`readNotifications:${user}`)) || [];
+    return Math.max(0, 4 - readIds.length);
+  } catch {
+    return 4;
+  }
 }
 
 const page = {
@@ -251,6 +262,7 @@ const topButtons = {
 };
 
 const topButton = {
+  position: "relative",
   width: "64px",
   height: "64px",
   display: "inline-flex",
@@ -262,6 +274,22 @@ const topButton = {
   color: "#111735",
   cursor: "pointer",
   boxShadow: "0 5px 18px rgba(20, 25, 50, 0.12)",
+};
+
+const badgeStyle = {
+  position: "absolute",
+  top: "7px",
+  right: "7px",
+  minWidth: "18px",
+  height: "18px",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: "999px",
+  background: "#ff5757",
+  color: "white",
+  fontSize: "11px",
+  fontWeight: "800",
 };
 
 export default DesktopLayout;

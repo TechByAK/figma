@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import AppIcon from "./AppIcon";
+import { getRoleCopy } from "../utils/users";
 
 function MobilePageLayout({ active, children, title }) {
   const navigate = useNavigate();
+  const roleCopy = getRoleCopy();
 
   return (
     <div style={page}>
@@ -28,7 +30,7 @@ function MobilePageLayout({ active, children, title }) {
         <NavItem
           active={active === "studies"}
           icon="school"
-          label="Studies"
+          label={roleCopy.studiesLabel}
           onClick={() => navigate("/studies")}
         />
         <NavItem

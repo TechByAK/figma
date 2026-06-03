@@ -1,11 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppIcon from "../components/AppIcon";
+import ScheduleEventForm from "../components/ScheduleEventForm";
+import { getRoleCopy } from "../utils/users";
 import {
   MONTHS_2026,
   getDaysInMonth2026,
   getVisibleWeekDays2026,
 } from "../utils/calendar2026";
+import {
+  SCHEDULE_HOURS,
+  clearScheduleForUser,
+  deleteScheduleEvent,
+  getEventsForDay,
+  getEventSpan,
+} from "../utils/schedules";
 
 function Calendar() {
   const navigate = useNavigate();
@@ -14,25 +23,35 @@ function Calendar() {
 
   const [monthIndex, setMonthIndex] = useState(1);
   const [selectedDay, setSelectedDay] = useState(16);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [scheduleVersion, setScheduleVersion] = useState(0);
+  const [editingEvent, setEditingEvent] = useState(null);
   const weekDays = getVisibleWeekDays2026(monthIndex, selectedDay);
+  const monthLength = getDaysInMonth2026(monthIndex);
+
+  function selectDay(day) {
+    setSelectedDay(day);
+    setSelectedEvent(null);
+    setEditingEvent(null);
+  }
 
   function previousMonth() {
     if (monthIndex > 0) {
       setMonthIndex(monthIndex - 1);
-      setSelectedDay(1);
+      selectDay(1);
     }
   }
 
   function nextMonth() {
     if (monthIndex < MONTHS_2026.length - 1) {
       setMonthIndex(monthIndex + 1);
-      setSelectedDay(1);
+      selectDay(1);
     }
   }
 
   function previousDay() {
     if (selectedDay > 1) {
-      setSelectedDay(selectedDay - 1);
+      selectDay(selectedDay - 1);
       return;
     }
 
@@ -40,7 +59,7 @@ function Calendar() {
       const previousMonthIndex = monthIndex - 1;
 
       setMonthIndex(previousMonthIndex);
-      setSelectedDay(getDaysInMonth2026(previousMonthIndex));
+      selectDay(getDaysInMonth2026(previousMonthIndex));
     }
   }
 
@@ -48,13 +67,13 @@ function Calendar() {
     const monthLength = getDaysInMonth2026(monthIndex);
 
     if (selectedDay < monthLength) {
-      setSelectedDay(selectedDay + 1);
+      selectDay(selectedDay + 1);
       return;
     }
 
     if (monthIndex < MONTHS_2026.length - 1) {
       setMonthIndex(monthIndex + 1);
-      setSelectedDay(1);
+      selectDay(1);
     }
   }
 
@@ -90,7 +109,7 @@ function Calendar() {
         {weekDays.map((day) => (
           <button
             key={`${day.label}-${day.number || "empty"}`}
-            onClick={() => day.number && setSelectedDay(day.number)}
+            onClick={() => day.number && selectDay(day.number)}
             style={
               day.number === selectedDay
                 ? selectedDayStyle
@@ -115,7 +134,65 @@ function Calendar() {
           </p>
         </div>
       ) : (
-        <ScheduleForDay selectedDay={selectedDay} />
+        <>
+          {user !== "naima" && (
+            <>
+              <ScheduleEventForm
+                key={editingEvent?.id || "new"}
+                day={selectedDay}
+                editingEvent={editingEvent}
+                monthLength={monthLength}
+                user={user}
+                onCancelEdit={() => {
+                  setEditingEvent(null);
+                  setSelectedEvent(null);
+                }}
+                onAdded={() => {
+                  setEditingEvent(null);
+                  setSelectedEvent(null);
+                  setScheduleVersion((version) => version + 1);
+                }}
+              />
+              <div style={scheduleActions}>
+                <button
+                  style={clearButton}
+                  onClick={() => {
+                    if (!selectedEvent) {
+                      return;
+                    }
+
+                    deleteScheduleEvent(user, selectedEvent.day || selectedDay, selectedEvent.id);
+                    setSelectedEvent(null);
+                    setEditingEvent(null);
+                    setScheduleVersion((version) => version + 1);
+                  }}
+                  disabled={!selectedEvent}
+                >
+                  <AppIcon name="trash" size={21} />
+                </button>
+                <button
+                  style={clearAllButton}
+                  onClick={() => {
+                    clearScheduleForUser(user);
+                    setSelectedEvent(null);
+                    setEditingEvent(null);
+                    setScheduleVersion((version) => version + 1);
+                  }}
+                >
+                  Clear all
+                </button>
+              </div>
+            </>
+          )}
+          <ScheduleForDay
+            key={`${selectedDay}-${scheduleVersion}`}
+            onEdit={setEditingEvent}
+            onSelect={setSelectedEvent}
+            selectedEventId={selectedEvent?.id}
+            selectedDay={selectedDay}
+            user={user}
+          />
+        </>
       )}
 
       <BottomNav navigate={navigate} />
@@ -123,102 +200,41 @@ function Calendar() {
   );
 }
 
-function ScheduleForDay({ selectedDay }) {
-  if (selectedDay === 16) {
-    return (
-      <div style={timeline}>
-        <TimeRow time="9 AM">
-          <CourseCard
-            title="Stellar Physics"
-            location="Bat. B • Salle 12"
-            time="9:30 AM — 11:30 AM"
-            color="#45c9d8"
-          />
-        </TimeRow>
-
-        <TimeRow time="10 AM" />
-        <TimeRow time="11 AM" />
-        <TimeRow time="12 PM" />
-
-        <TimeRow time="1 PM">
-          <CourseCard
-            title="Stellar Physics"
-            location="Cancelled"
-            time="1 PM — 3 PM"
-            cancelled
-          />
-        </TimeRow>
-
-        <TimeRow time="2 PM" />
-        <TimeRow time="3 PM" />
-        <TimeRow time="4 PM" />
-
-        <TimeRow time="5 PM">
-          <CourseCard
-            title="General relativity"
-            location="Bat. A • Salle 1"
-            time="5 PM — 6 PM"
-          />
-        </TimeRow>
-
-        <TimeRow time="6 PM" />
-      </div>
-    );
-  }
-
-  if (selectedDay === 17) {
-    return (
-      <div style={timeline}>
-        <TimeRow time="9 AM">
-          <CourseCard
-            title="Business Analytics"
-            location="Bat. B • Salle 12"
-            time="9:30 AM — 11:30 AM"
-            color="#00c39a"
-          />
-        </TimeRow>
-
-        <TimeRow time="10 AM" />
-        <TimeRow time="11 AM" />
-        <TimeRow time="12 PM" />
-
-        <TimeRow time="1 PM" />
-        <TimeRow time="2 PM">
-          <CourseCard
-            title="Change Management"
-            location="Bat. B • Salle 12"
-            time="2 PM — 3 PM"
-            color="#00c39a"
-          />
-        </TimeRow>
-
-        <TimeRow time="3 PM" />
-        <TimeRow time="4 PM" />
-        <TimeRow time="5 PM" />
-        <TimeRow time="6 PM" />
-      </div>
-    );
-  }
+function ScheduleForDay({ onEdit, onSelect, selectedEventId, selectedDay, user }) {
+  const events = getEventsForDay(user, selectedDay);
 
   return (
     <div style={timeline}>
-      <TimeRow time="9 AM" />
-      <TimeRow time="10 AM" />
-      <TimeRow time="11 AM" />
-      <TimeRow time="12 PM" />
-      <TimeRow time="1 PM" />
-      <TimeRow time="2 PM" />
-      <TimeRow time="3 PM" />
-      <TimeRow time="4 PM" />
-      <TimeRow time="5 PM" />
-      <TimeRow time="6 PM" />
+      {SCHEDULE_HOURS.map((hour) => (
+        <TimeRow key={hour} time={hour}>
+          {events
+            .filter((event) => event.startHour === hour)
+            .map((event) => (
+              <CourseCard
+                key={`${event.title}-${event.time}`}
+                title={event.title}
+                location={event.location}
+                time={event.time}
+                color={event.color}
+                cancelled={event.cancelled}
+                event={{ ...event, day: selectedDay }}
+                span={getEventSpan(event)}
+                onEdit={onEdit}
+                onSelect={onSelect}
+                selected={selectedEventId === event.id}
+              />
+            ))}
+        </TimeRow>
+      ))}
 
-      <div style={emptyCard}>
-        <h2>No events for this day</h2>
-        <p style={{ color: "#111735" }}>
-          There are no scheduled classes on Day {selectedDay}.
-        </p>
-      </div>
+      {events.length === 0 && (
+        <div style={emptyCard}>
+          <h2>No events for this day</h2>
+          <p style={{ color: "#111735" }}>
+            There are no scheduled classes on Day {selectedDay}.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -235,30 +251,53 @@ function TimeRow({ time, children }) {
   );
 }
 
-function CourseCard({ title, location, time, color, cancelled }) {
+function CourseCard({ title, location, time, color, cancelled, event, onEdit, onSelect, selected, span }) {
   return (
     <div
+      onClick={() => event?.custom && onSelect(event)}
       style={{
         ...courseCard,
-        border: cancelled
+        height: `${Math.max(1, span) * 85 - 16}px`,
+        top: "8px",
+        border: selected
+          ? "3px solid #081a4a"
+          : cancelled
           ? "3px solid #ff6b6b"
           : color
           ? `3px solid ${color}`
           : "1px solid #d4d8e8",
+        boxShadow: selected
+          ? "0 0 0 4px rgba(8, 26, 74, 0.12)"
+          : courseCard.boxShadow,
       }}
     >
-      <h2 style={{ marginTop: 0 }}>{title}</h2>
+      <h2 style={eventTitle}>{title}</h2>
 
-      <p style={{ color: cancelled ? "#ff6b6b" : "#111735" }}>
+      <p style={{ ...eventText, color: cancelled ? "#ff6b6b" : "#111735" }}>
         {location}
       </p>
 
-      <p>{time}</p>
+      <p style={eventText}>{time}</p>
+
+      {event?.custom && (
+        <button
+          style={editButton}
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
+            onSelect(event);
+            onEdit(event);
+          }}
+        >
+          Edit
+        </button>
+      )}
     </div>
   );
 }
 
 function BottomNav({ navigate }) {
+  const roleCopy = getRoleCopy();
+
   return (
     <div style={bottomNav}>
       <div style={navItem} onClick={() => navigate("/app")}>
@@ -273,7 +312,7 @@ function BottomNav({ navigate }) {
 
       <div style={navItem} onClick={() => navigate("/studies")}>
         <AppIcon name="school" size={22} />
-        <span>Studies</span>
+        <span>{roleCopy.studiesLabel}</span>
       </div>
 
       <div style={navItem} onClick={() => navigate("/help")}>
@@ -286,7 +325,7 @@ function BottomNav({ navigate }) {
 
 const page = {
   padding: "24px",
-  paddingBottom: "120px",
+  paddingBottom: "150px",
   minHeight: "100vh",
   background: "white",
   fontFamily: "Arial",
@@ -377,8 +416,9 @@ const timeline = {
 
 const timeRow = {
   display: "flex",
-  minHeight: "85px",
+  height: "85px",
   borderTop: "1px solid #e4e7f0",
+  overflow: "visible",
 };
 
 const timeLabel = {
@@ -391,13 +431,84 @@ const timeLabel = {
 const timeContent = {
   flex: 1,
   padding: "10px 0",
+  position: "relative",
+  overflow: "visible",
 };
 
 const courseCard = {
   background: "white",
   borderRadius: "18px",
-  padding: "18px",
+  padding: "10px 64px 10px 12px",
   boxShadow: "0 4px 18px #ddd",
+  position: "absolute",
+  left: 0,
+  right: 0,
+  zIndex: 2,
+  overflow: "hidden",
+  cursor: "pointer",
+};
+
+const eventTitle = {
+  margin: "0 0 4px",
+  color: "#111735",
+  fontSize: "16px",
+  lineHeight: 1.15,
+};
+
+const eventText = {
+  margin: "2px 0",
+  color: "#111735",
+  fontSize: "13px",
+  lineHeight: 1.2,
+};
+
+const editButton = {
+  position: "absolute",
+  top: "8px",
+  right: "8px",
+  border: 0,
+  borderRadius: "10px",
+  background: "#081a4a",
+  color: "white",
+  padding: "6px 10px",
+  fontSize: "12px",
+  fontWeight: "800",
+  zIndex: 4,
+};
+
+const clearButton = {
+  width: "48px",
+  height: "48px",
+  minHeight: "48px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  margin: 0,
+  border: "1px solid #ff5757",
+  borderRadius: "50%",
+  background: "white",
+  color: "#d9234f",
+  fontWeight: "800",
+  cursor: "pointer",
+  opacity: 1,
+};
+
+const scheduleActions = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "10px",
+  marginBottom: "14px",
+};
+
+const clearAllButton = {
+  minHeight: "44px",
+  border: 0,
+  borderRadius: "12px",
+  background: "#d9234f",
+  color: "white",
+  padding: "0 16px",
+  fontWeight: "800",
 };
 
 const emptyCard = {
@@ -414,6 +525,7 @@ const bottomNav = {
   bottom: 0,
   left: 0,
   right: 0,
+  zIndex: 100,
   background: "white",
   display: "grid",
   gridTemplateColumns: "repeat(4, minmax(0, 1fr))",

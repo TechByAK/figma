@@ -14,6 +14,15 @@ export const MONTHS_2026 = [
 ];
 
 export const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+export const FULL_WEEKDAY_LABELS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
 export function getDaysInMonth2026(monthIndex) {
   return new Date(2026, monthIndex + 1, 0).getDate();
@@ -21,6 +30,10 @@ export function getDaysInMonth2026(monthIndex) {
 
 export function getMondayFirstWeekdayIndex(monthIndex, day) {
   return (new Date(2026, monthIndex, day).getDay() + 6) % 7;
+}
+
+export function getWeekdayName2026(monthIndex, day) {
+  return FULL_WEEKDAY_LABELS[getMondayFirstWeekdayIndex(monthIndex, day)];
 }
 
 export function getVisibleWeekDays2026(monthIndex, selectedDay) {
