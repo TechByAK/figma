@@ -603,18 +603,20 @@ const statusGrid = {
 
 const statusItem = {
   display: "flex",
-  alignItems: "flex-start",
-  gap: "10px",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "8px",
   borderRadius: "14px",
   padding: "12px",
   background: "#f5f7fb",
+  textAlign: "center",
 };
 
 const statusDot = {
   width: "10px",
   height: "10px",
   flexShrink: 0,
-  marginTop: "6px",
   borderRadius: "50%",
   background: "#22a95a",
 };
@@ -631,6 +633,7 @@ const statusText = {
   color: "#4d5872",
   fontSize: "14px",
   fontWeight: "700",
+  textAlign: "center",
 };
 
 const contactsGrid = {

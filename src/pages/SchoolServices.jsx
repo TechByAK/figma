@@ -100,7 +100,10 @@ function ServiceCard({ isOpen, onToggle, service }) {
             <Detail label="Location" value={service.location} />
           </div>
 
-          <p style={detailText}>{service.details}</p>
+          <p style={detailText}>
+            <span style={noteMark}>*</span>
+            <span>{service.details}</span>
+          </p>
 
           <a href={`mailto:${service.contact}`} style={contactButton}>
             <AppIcon name="mail" size={18} />
@@ -433,10 +436,25 @@ const detailLabel = {
 
 const detailText = {
   margin: 0,
-  color: "#111735",
-  fontSize: "16px",
-  lineHeight: 1.55,
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "center",
+  gap: "6px",
+  borderRadius: "12px",
+  padding: "9px 11px",
+  background: "#f9fbff",
+  color: "#4d5872",
+  fontSize: "13px",
+  fontWeight: "700",
+  lineHeight: 1.4,
+  textAlign: "center",
   overflowWrap: "anywhere",
+};
+
+const noteMark = {
+  flexShrink: 0,
+  color: "#1f57d6",
+  fontWeight: "900",
 };
 
 const contactButton = {

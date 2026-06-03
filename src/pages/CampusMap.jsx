@@ -30,12 +30,15 @@ function CampusMap() {
 function CampusMapContent({ isDesktop, onBack }) {
   return (
     <section style={isDesktop ? panel : mobilePanel}>
+      <div style={backRow}>
+        <button onClick={onBack} style={backButton} type="button">
+          <AppIcon name="arrowLeft" size={18} />
+          <span>Back</span>
+        </button>
+      </div>
+
       <div style={header}>
         <div>
-          <button onClick={onBack} style={backButton} type="button">
-            <AppIcon name="arrowLeft" size={18} />
-            <span>Back</span>
-          </button>
           <p style={eyebrow}>Rennes School of Business</p>
           <h1 style={title}>Campus map</h1>
         </div>
@@ -130,6 +133,12 @@ const title = {
   color: "#111735",
   fontSize: "clamp(26px, 4vw, 36px)",
   lineHeight: 1.12,
+};
+
+const backRow = {
+  display: "flex",
+  justifyContent: "center",
+  marginBottom: "14px",
 };
 
 const backButton = {
