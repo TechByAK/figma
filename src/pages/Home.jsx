@@ -11,6 +11,7 @@ function Home() {
   const roleCopy = getRoleCopy(user);
   const nextEvent = getEventsForDay(user, 16)[0];
   const unreadCount = getUnreadNotificationCount(user);
+  const urgentCount = getUrgentNotificationCount(user);
   const [activeFeed, setActiveFeed] = useState("events");
   const previewNews = getPreviewNews(user, roleCopy.newsLifeTitle);
 
@@ -28,7 +29,8 @@ function Home() {
         <div style={{ display: "flex", gap: "12px" }}>
           <button style={circleBtn} onClick={() => navigate("/notifications")} aria-label="Notifications">
             <AppIcon name="bell" size={23} />
-            {unreadCount > 0 && <span style={badgeStyle}>{unreadCount}</span>}
+            {unreadCount > 0 && <span style={unreadBadgeStyle}>{unreadCount}</span>}
+            {urgentCount > 0 && <span style={urgentBadgeStyle}>{urgentCount}</span>}
           </button>
           <button style={circleBtn} onClick={() => navigate("/settings")} aria-label="Settings">
             <AppIcon name="settings" size={23} />
@@ -139,6 +141,14 @@ function getUnreadNotificationCount(user) {
   }
 }
 
+function getUrgentNotificationCount(user) {
+  try {
+    return (JSON.parse(localStorage.getItem(`urgentNotifications:${user}`)) || []).length;
+  } catch {
+    return 0;
+  }
+}
+
 function PreviewNewsCard({ story }) {
   return (
     <article style={previewCard}>
@@ -220,7 +230,9 @@ const profile = { display: "flex", alignItems: "center", gap: "15px" };
 const avatarStyle = { width: "58px", height: "58px", borderRadius: "50%" };
 const circleBtn = { position: "relative", border: "none", background: "#f4f5f8", borderRadius: "50%", width: "55px", height: "55px", color: "#111735", display: "inline-flex", alignItems: "center", justifyContent: "center" };
 const nameTitle = { margin: 0, color: "#111735", overflowWrap: "anywhere", lineHeight: 1.1 };
-const badgeStyle = { position: "absolute", top: "4px", right: "4px", minWidth: "18px", height: "18px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "999px", background: "#ff5757", color: "white", fontSize: "11px", fontWeight: "800" };
+const badgeStyle = { position: "absolute", minWidth: "18px", height: "18px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "999px", border: "2px solid white", color: "white", fontSize: "10px", fontWeight: "900", lineHeight: 1, padding: "0 4px" };
+const unreadBadgeStyle = { ...badgeStyle, top: "3px", right: "3px", background: "#1f57d6" };
+const urgentBadgeStyle = { ...badgeStyle, bottom: "3px", right: "3px", background: "#ff5757" };
 const cardsWrapper = { background: "#f4f4f6", padding: "16px", borderRadius: "28px", marginBottom: "60px" };
 const courseCard = { background: "white", borderRadius: "18px", padding: "16px", display: "flex", gap: "20px", alignItems: "center", boxShadow: "0 4px 15px #ddd" };
 const dateBox = { background: "#fde6f3", borderRadius: "12px", padding: "18px", textAlign: "center", color: "#7a0b4f", fontSize: "20px" };

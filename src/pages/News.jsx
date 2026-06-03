@@ -21,13 +21,11 @@ function News() {
   const filteredStories = activeCategory === "All"
     ? stories
     : stories.filter((story) => story.category === activeCategory);
-  const featuredStory = stories[0];
 
   const content = (
     <NewsContent
       activeCategory={activeCategory}
       categories={categories}
-      featuredStory={featuredStory}
       filteredStories={filteredStories}
       isDesktop={isDesktop}
       navigate={navigate}
@@ -50,13 +48,12 @@ function News() {
   );
 }
 
-function NewsContent({ activeCategory, categories, featuredStory, filteredStories, isDesktop, navigate, setActiveCategory }) {
+function NewsContent({ activeCategory, categories, filteredStories, isDesktop, navigate, setActiveCategory }) {
   return (
     <section style={isDesktop ? panel : mobilePanel}>
       <div style={header}>
         <div>
           <p style={eyebrow}>Campus feed</p>
-          <h1 style={title}>News & Events</h1>
           <p style={lastUpdated}>Last updated today</p>
         </div>
         <button onClick={() => navigate("/app")} style={dashboardButton} type="button">
@@ -64,8 +61,6 @@ function NewsContent({ activeCategory, categories, featuredStory, filteredStorie
           <span>Dashboard</span>
         </button>
       </div>
-
-      <FeaturedStory story={featuredStory} />
 
       <div aria-label="News categories" style={chipRow}>
         {categories.map((category) => (
@@ -86,19 +81,6 @@ function NewsContent({ activeCategory, categories, featuredStory, filteredStorie
         ))}
       </div>
     </section>
-  );
-}
-
-function FeaturedStory({ story }) {
-  return (
-    <article style={featuredCard}>
-      <img alt="" src={story.image} style={featuredImage} />
-      <div style={featuredOverlay}>
-        <span style={featuredBadge}>{story.category}</span>
-        <h2 style={featuredTitle}>{story.title}</h2>
-        <p style={featuredText}>{story.text}</p>
-      </div>
-    </article>
   );
 }
 
@@ -273,15 +255,8 @@ const eyebrow = {
   fontWeight: "800",
 };
 
-const title = {
-  margin: 0,
-  color: "#111735",
-  fontSize: "clamp(28px, 4vw, 38px)",
-  lineHeight: 1.1,
-};
-
 const lastUpdated = {
-  margin: "6px 0 0",
+  margin: "4px 0 0",
   color: "#5f6b86",
   fontSize: "14px",
   fontWeight: "800",
@@ -301,59 +276,6 @@ const dashboardButton = {
   fontSize: "14px",
   fontWeight: "800",
   cursor: "pointer",
-};
-
-const featuredCard = {
-  position: "relative",
-  minHeight: "230px",
-  overflow: "hidden",
-  borderRadius: "20px",
-  marginBottom: "16px",
-  background: "#111735",
-  boxShadow: "0 4px 14px rgba(20, 25, 50, 0.1)",
-};
-
-const featuredImage = {
-  width: "100%",
-  height: "260px",
-  display: "block",
-  objectFit: "cover",
-  opacity: 0.72,
-};
-
-const featuredOverlay = {
-  position: "absolute",
-  left: 0,
-  right: 0,
-  bottom: 0,
-  padding: "18px",
-  color: "white",
-  background: "linear-gradient(0deg, rgba(8, 26, 74, 0.92), rgba(8, 26, 74, 0))",
-};
-
-const featuredBadge = {
-  display: "inline-flex",
-  minHeight: "28px",
-  alignItems: "center",
-  borderRadius: "999px",
-  padding: "0 10px",
-  background: "rgba(255,255,255,0.18)",
-  color: "white",
-  fontSize: "13px",
-  fontWeight: "800",
-};
-
-const featuredTitle = {
-  margin: "10px 0 6px",
-  fontSize: "clamp(22px, 4vw, 32px)",
-  lineHeight: 1.1,
-};
-
-const featuredText = {
-  maxWidth: "760px",
-  margin: 0,
-  fontSize: "15px",
-  lineHeight: 1.45,
 };
 
 const chipRow = {

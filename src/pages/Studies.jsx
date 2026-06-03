@@ -10,7 +10,7 @@ function Studies() {
   const user = localStorage.getItem("user") || "guest";
   const roleCopy = getRoleCopy(user);
   const hub = getHubData(user);
-  const content = <StudiesContent hub={hub} isDesktop={isDesktop} roleCopy={roleCopy} />;
+  const content = <StudiesContent hub={hub} isDesktop={isDesktop} />;
 
   if (!isDesktop) {
     return (
@@ -27,15 +27,17 @@ function Studies() {
   );
 }
 
-function StudiesContent({ hub, isDesktop, roleCopy }) {
+function StudiesContent({ hub, isDesktop }) {
   const [openSection, setOpenSection] = useState(null);
 
   return (
     <section style={isDesktop ? panel : mobilePanel}>
       <div style={pageHeader}>
         <p style={eyebrow}>{hub.eyebrow}</p>
-        <h1 style={title}>{roleCopy.studiesTitle}</h1>
-        <p style={intro}>{hub.intro}</p>
+        <p style={intro}>
+          <span style={noteMark}>*</span>
+          <span>{hub.intro}</span>
+        </p>
       </div>
 
       <div style={metricGrid}>
@@ -365,24 +367,30 @@ const pageHeader = {
 const eyebrow = {
   margin: "0 0 5px",
   color: "#1f57d6",
-  fontSize: "14px",
+  fontSize: "18px",
   fontWeight: "800",
-};
-
-const title = {
-  margin: 0,
-  color: "#111735",
-  fontSize: "clamp(28px, 4vw, 38px)",
-  lineHeight: 1.1,
 };
 
 const intro = {
   maxWidth: "760px",
-  margin: "10px 0 0",
-  lineHeight: 1.55,
-  color: "#111735",
-  fontSize: "16px",
+  margin: "8px 0 0",
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "6px",
+  borderRadius: "12px",
+  padding: "9px 11px",
+  background: "#f9fbff",
+  color: "#5f6b86",
+  fontSize: "13px",
+  fontWeight: "700",
+  lineHeight: 1.4,
   overflowWrap: "anywhere",
+};
+
+const noteMark = {
+  flexShrink: 0,
+  color: "#1f57d6",
+  fontWeight: "900",
 };
 
 const metricGrid = {

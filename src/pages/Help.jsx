@@ -55,7 +55,10 @@ function HelpContent({ isDesktop, user }) {
       <div style={pageHeader}>
         <p style={eyebrow}>Support center</p>
         <h1 style={title}>How can we help?</h1>
-        <p style={intro}>{roleCopy.helpText}</p>
+        <p style={intro}>
+          <span style={noteMark}>*</span>
+          <span>{roleCopy.helpText}</span>
+        </p>
       </div>
 
       <div style={quickGrid}>
@@ -377,10 +380,24 @@ const title = {
 
 const intro = {
   maxWidth: "760px",
-  margin: "10px 0 0",
-  lineHeight: 1.55,
-  color: "#111735",
-  fontSize: "16px",
+  margin: "8px 0 0",
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "6px",
+  borderRadius: "12px",
+  padding: "9px 11px",
+  background: "#f9fbff",
+  color: "#5f6b86",
+  fontSize: "13px",
+  fontWeight: "700",
+  lineHeight: 1.4,
+  overflowWrap: "anywhere",
+};
+
+const noteMark = {
+  flexShrink: 0,
+  color: "#1f57d6",
+  fontWeight: "900",
 };
 
 const quickGrid = {

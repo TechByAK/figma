@@ -342,7 +342,7 @@ function getDepartmentContact(user) {
 
 function clearDemoData() {
   Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith("customSchedule:") || key.startsWith("readNotifications:")) {
+    if (key.startsWith("customSchedule:") || key.startsWith("readNotifications:") || key.startsWith("urgentNotifications:")) {
       localStorage.removeItem(key);
     }
   });

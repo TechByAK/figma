@@ -19,11 +19,22 @@ function Notifications() {
     [user, profile.name, nextEvent]
   );
   const [readIds, setReadIds] = useState(() => getReadIds(user));
+  const [urgentIds, setUrgentIds] = useState(() => getUrgentIds(user));
 
-  function markRead(id) {
-    const nextIds = Array.from(new Set([...readIds, id]));
+  function toggleRead(id) {
+    const nextIds = readIds.includes(id)
+      ? readIds.filter((readId) => readId !== id)
+      : Array.from(new Set([...readIds, id]));
     setReadIds(nextIds);
     localStorage.setItem(getReadKey(user), JSON.stringify(nextIds));
+  }
+
+  function toggleUrgent(id) {
+    const nextIds = urgentIds.includes(id)
+      ? urgentIds.filter((urgentId) => urgentId !== id)
+      : Array.from(new Set([...urgentIds, id]));
+    setUrgentIds(nextIds);
+    localStorage.setItem(getUrgentKey(user), JSON.stringify(nextIds));
   }
 
   function markAllRead() {
@@ -36,10 +47,12 @@ function Notifications() {
     <NotificationsContent
       isDesktop={isDesktop}
       markAllRead={markAllRead}
-      markRead={markRead}
       navigate={navigate}
       notifications={notifications}
       readIds={readIds}
+      toggleRead={toggleRead}
+      toggleUrgent={toggleUrgent}
+      urgentIds={urgentIds}
     />
   );
 
@@ -58,8 +71,9 @@ function Notifications() {
   );
 }
 
-function NotificationsContent({ isDesktop, markAllRead, markRead, navigate, notifications, readIds }) {
+function NotificationsContent({ isDesktop, markAllRead, navigate, notifications, readIds, toggleRead, toggleUrgent, urgentIds }) {
   const unreadCount = notifications.filter((notification) => !readIds.includes(notification.id)).length;
+  const urgentCount = urgentIds.length;
   const groups = ["Today", "Upcoming", "System"];
 
   return (
@@ -67,8 +81,6 @@ function NotificationsContent({ isDesktop, markAllRead, markRead, navigate, noti
       <div style={header}>
         <div>
           <p style={eyebrow}>Notification center</p>
-          <h1 style={title}>Updates for you</h1>
-          <p style={intro}>{unreadCount} unread update{unreadCount === 1 ? "" : "s"}</p>
           <p style={lastUpdated}>Last updated today</p>
         </div>
 
@@ -80,6 +92,7 @@ function NotificationsContent({ isDesktop, markAllRead, markRead, navigate, noti
 
       <div style={summaryGrid}>
         <SummaryCard icon="bell" label="Unread" value={String(unreadCount)} />
+        <SummaryCard icon="alertTriangle" label="Urgent" value={String(urgentCount)} />
         <SummaryCard icon="calendar" label="Schedule" value="Live" />
         <SummaryCard icon="shieldCheck" label="Systems" value="Normal" />
       </div>
@@ -96,9 +109,11 @@ function NotificationsContent({ isDesktop, markAllRead, markRead, navigate, noti
                   <NotificationCard
                     isRead={readIds.includes(notification.id)}
                     key={notification.id}
-                    markRead={markRead}
+                    isUrgent={urgentIds.includes(notification.id)}
                     navigate={navigate}
                     notification={notification}
+                    toggleRead={toggleRead}
+                    toggleUrgent={toggleUrgent}
                   />
                 ))}
               </div>
@@ -124,17 +139,22 @@ function SummaryCard({ icon, label, value }) {
   );
 }
 
-function NotificationCard({ isRead, markRead, navigate, notification }) {
+function NotificationCard({ isRead, isUrgent, navigate, notification, toggleRead, toggleUrgent }) {
   return (
-    <article style={{ ...notificationCard, opacity: isRead ? 0.78 : 1 }}>
+    <article style={{ ...notificationCard, ...(isUrgent ? urgentCard : {}), opacity: isRead ? 0.78 : 1 }}>
       <span style={{ ...notificationIcon, background: notification.tint, color: notification.color }}>
         <AppIcon name={notification.icon} size={21} />
+        {!isRead && <span style={iconUnreadDot} />}
+        {isUrgent && <span style={iconUrgentDot} />}
       </span>
 
       <div style={notificationBody}>
         <div style={notificationTop}>
           <h3 style={notificationTitle}>{notification.title}</h3>
-          {!isRead && <span style={unreadDot} />}
+          <span style={statusMarks}>
+            {isUrgent && <span style={urgentPill}>Urgent</span>}
+            {!isRead && <span style={unreadDot} />}
+          </span>
         </div>
         <p style={notificationText}>{notification.text}</p>
         <p style={notificationMeta}>{notification.meta}</p>
@@ -145,11 +165,12 @@ function NotificationCard({ isRead, markRead, navigate, notification }) {
               {notification.action.label}
             </button>
           )}
-          {!isRead && (
-            <button onClick={() => markRead(notification.id)} style={quietButton} type="button">
-              Mark read
-            </button>
-          )}
+          <button onClick={() => toggleRead(notification.id)} style={quietButton} type="button">
+            {isRead ? "Mark unread" : "Mark read"}
+          </button>
+          <button onClick={() => toggleUrgent(notification.id)} style={isUrgent ? urgentButton : quietButton} type="button">
+            {isUrgent ? "Unflag urgent" : "Flag urgent"}
+          </button>
         </div>
       </div>
     </article>
@@ -294,6 +315,18 @@ function getReadKey(user) {
   return `readNotifications:${user}`;
 }
 
+function getUrgentIds(user) {
+  try {
+    return JSON.parse(localStorage.getItem(getUrgentKey(user))) || [];
+  } catch {
+    return [];
+  }
+}
+
+function getUrgentKey(user) {
+  return `urgentNotifications:${user}`;
+}
+
 const panel = {
   background: "white",
   borderRadius: "26px",
@@ -322,20 +355,6 @@ const eyebrow = {
   color: "#1f57d6",
   fontSize: "14px",
   fontWeight: "800",
-};
-
-const title = {
-  margin: 0,
-  color: "#111735",
-  fontSize: "clamp(28px, 4vw, 38px)",
-  lineHeight: 1.1,
-};
-
-const intro = {
-  margin: "8px 0 0",
-  color: "#111735",
-  fontSize: "16px",
-  fontWeight: "700",
 };
 
 const lastUpdated = {
@@ -434,7 +453,13 @@ const notificationCard = {
   boxShadow: "0 4px 14px rgba(20, 25, 50, 0.1)",
 };
 
+const urgentCard = {
+  border: "1px solid #ffd1dc",
+  boxShadow: "0 5px 18px rgba(255, 87, 87, 0.16)",
+};
+
 const notificationIcon = {
+  position: "relative",
   width: "44px",
   height: "44px",
   flexShrink: 0,
@@ -442,6 +467,28 @@ const notificationIcon = {
   alignItems: "center",
   justifyContent: "center",
   borderRadius: "14px",
+};
+
+const iconUnreadDot = {
+  position: "absolute",
+  top: "-3px",
+  right: "-3px",
+  width: "11px",
+  height: "11px",
+  borderRadius: "50%",
+  border: "2px solid white",
+  background: "#1f57d6",
+};
+
+const iconUrgentDot = {
+  position: "absolute",
+  bottom: "-3px",
+  right: "-3px",
+  width: "11px",
+  height: "11px",
+  borderRadius: "50%",
+  border: "2px solid white",
+  background: "#ff5757",
 };
 
 const notificationBody = {
@@ -470,6 +517,25 @@ const unreadDot = {
   flexShrink: 0,
   borderRadius: "50%",
   background: "#1f57d6",
+};
+
+const statusMarks = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "7px",
+  flexShrink: 0,
+};
+
+const urgentPill = {
+  minHeight: "24px",
+  display: "inline-flex",
+  alignItems: "center",
+  borderRadius: "999px",
+  padding: "0 8px",
+  background: "#fde6f3",
+  color: "#7a0b4f",
+  fontSize: "12px",
+  fontWeight: "900",
 };
 
 const notificationText = {
@@ -513,6 +579,12 @@ const quietButton = {
   ...actionButton,
   background: "#eef4ff",
   color: "#1f57d6",
+};
+
+const urgentButton = {
+  ...actionButton,
+  background: "#fde6f3",
+  color: "#7a0b4f",
 };
 
 export default Notifications;

@@ -8,7 +8,9 @@ function DesktopLayout({ children }) {
 
   const profileData = getCurrentProfile();
   const roleCopy = getRoleCopy();
-  const unreadCount = getUnreadNotificationCount(localStorage.getItem("user") || "guest");
+  const user = localStorage.getItem("user") || "guest";
+  const unreadCount = getUnreadNotificationCount(user);
+  const urgentCount = getUrgentNotificationCount(user);
 
   function logout() {
     localStorage.removeItem("user");
@@ -59,7 +61,12 @@ function DesktopLayout({ children }) {
           </div>
 
           <div style={topButtons}>
-            <TopButton badge={unreadCount} label="Notifications" onClick={() => navigate("/notifications")}>
+            <TopButton
+              unreadCount={unreadCount}
+              urgentCount={urgentCount}
+              label="Notifications"
+              onClick={() => navigate("/notifications")}
+            >
               <AppIcon name="bell" size={25} />
             </TopButton>
             <TopButton label="Settings" onClick={() => navigate("/settings")}>
@@ -101,11 +108,12 @@ function SideItem({ icon, text, onClick, active }) {
   );
 }
 
-function TopButton({ badge = 0, children, label, onClick }) {
+function TopButton({ children, label, onClick, unreadCount = 0, urgentCount = 0 }) {
   return (
     <button onClick={onClick} style={topButton} aria-label={label} title={label}>
       {children}
-      {badge > 0 && <span style={badgeStyle}>{badge}</span>}
+      {unreadCount > 0 && <span style={unreadBadgeStyle}>{unreadCount}</span>}
+      {urgentCount > 0 && <span style={urgentBadgeStyle}>{urgentCount}</span>}
     </button>
   );
 }
@@ -116,6 +124,14 @@ function getUnreadNotificationCount(user) {
     return Math.max(0, 4 - readIds.length);
   } catch {
     return 4;
+  }
+}
+
+function getUrgentNotificationCount(user) {
+  try {
+    return (JSON.parse(localStorage.getItem(`urgentNotifications:${user}`)) || []).length;
+  } catch {
+    return 0;
   }
 }
 
@@ -278,18 +294,32 @@ const topButton = {
 
 const badgeStyle = {
   position: "absolute",
-  top: "7px",
-  right: "7px",
-  minWidth: "18px",
-  height: "18px",
+  minWidth: "19px",
+  height: "19px",
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
   borderRadius: "999px",
-  background: "#ff5757",
+  border: "2px solid white",
   color: "white",
   fontSize: "11px",
-  fontWeight: "800",
+  fontWeight: "900",
+  lineHeight: 1,
+  padding: "0 4px",
+};
+
+const unreadBadgeStyle = {
+  ...badgeStyle,
+  top: "5px",
+  right: "5px",
+  background: "#1f57d6",
+};
+
+const urgentBadgeStyle = {
+  ...badgeStyle,
+  bottom: "5px",
+  right: "5px",
+  background: "#ff5757",
 };
 
 export default DesktopLayout;
