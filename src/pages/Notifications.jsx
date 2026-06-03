@@ -1,6 +1,19 @@
 import DesktopLayout from "../components/DesktopLayout";
+import MobilePageLayout from "../components/MobilePageLayout";
+import useScreenSize from "../hooks/useScreenSize";
 
 function Notifications() {
+  const isDesktop = useScreenSize();
+
+  if (!isDesktop) {
+    return (
+      <MobilePageLayout title="Notifications">
+        <div style={mobileCard}>Your Stellar Physics class starts soon.</div>
+        <div style={mobileCard}>New campus event available.</div>
+      </MobilePageLayout>
+    );
+  }
+
   return (
     <DesktopLayout>
       <section style={panel}>
@@ -31,6 +44,15 @@ const card = {
   padding: "20px",
   borderRadius: "16px",
   marginBottom: "20px",
+};
+
+const mobileCard = {
+  background: "#f5f6fa",
+  padding: "18px",
+  borderRadius: "16px",
+  marginBottom: "14px",
+  color: "#111735",
+  lineHeight: 1.5,
 };
 
 export default Notifications;

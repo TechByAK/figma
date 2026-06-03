@@ -1,13 +1,31 @@
 import { useNavigate } from "react-router-dom";
 import AppIcon from "../components/AppIcon";
 import DesktopLayout from "../components/DesktopLayout";
+import MobilePageLayout from "../components/MobilePageLayout";
+import useScreenSize from "../hooks/useScreenSize";
 
 function Settings() {
   const navigate = useNavigate();
+  const isDesktop = useScreenSize();
 
   function logout() {
     localStorage.removeItem("user");
     navigate("/login");
+  }
+
+  if (!isDesktop) {
+    return (
+      <MobilePageLayout title="Settings">
+        <section style={mobilePanel}>
+          <p style={text}>Manage your profile and app preferences.</p>
+
+          <button onClick={logout} style={dangerButton}>
+            <AppIcon name="logout" size={21} />
+            <span>Logout</span>
+          </button>
+        </section>
+      </MobilePageLayout>
+    );
   }
 
   return (
@@ -31,6 +49,12 @@ const panel = {
   padding: "28px",
   minHeight: "calc(100vh - 160px)",
   boxShadow: "0 5px 22px rgba(20, 25, 50, 0.12)",
+};
+
+const mobilePanel = {
+  background: "#f5f6fa",
+  borderRadius: "18px",
+  padding: "20px",
 };
 
 const title = {
