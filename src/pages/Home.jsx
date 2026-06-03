@@ -66,13 +66,23 @@ function Home() {
           </p>
           <div style={welcomeActions}>
             <button style={welcomeButton} onClick={() => navigate("/campus-map")}>
-              <AppIcon name="map" size={19} />
-              <span>Campus map</span>
+              <span style={welcomeButtonIcon}>
+                <AppIcon name="map" size={20} />
+              </span>
+              <span style={welcomeButtonText}>
+                <span style={welcomeButtonTitle}>Campus map</span>
+                <span style={welcomeButtonSubtitle}>Find buildings</span>
+              </span>
             </button>
 
             <button style={welcomeButton} onClick={() => navigate("/school-services")}>
-              <AppIcon name="school" size={19} />
-              <span>School services</span>
+              <span style={welcomeButtonIcon}>
+                <AppIcon name="school" size={20} />
+              </span>
+              <span style={welcomeButtonText}>
+                <span style={welcomeButtonTitle}>Services</span>
+                <span style={welcomeButtonSubtitle}>Contacts & help</span>
+              </span>
             </button>
           </div>
         </div>
@@ -216,7 +226,11 @@ const courseCard = { background: "white", borderRadius: "18px", padding: "16px",
 const dateBox = { background: "#fde6f3", borderRadius: "12px", padding: "18px", textAlign: "center", color: "#7a0b4f", fontSize: "20px" };
 const welcomeCard = { background: "white", borderRadius: "18px", padding: "25px", marginTop: "20px", boxShadow: "0 4px 15px #ddd" };
 const welcomeActions = { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px", marginTop: "18px" };
-const welcomeButton = { minHeight: "52px", background:"#7fd9ff", color:"#081a4a", border:"none", borderRadius:"16px", padding:"0 14px", fontSize:"14px", fontWeight:"700", cursor:"pointer", boxShadow:"0 4px 14px rgba(127,217,255,0.35)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", whiteSpace: "nowrap" };
+const welcomeButton = { minHeight: "74px", minWidth: 0, background:"white", color:"#081a4a", border:"1px solid #e3e8f3", borderRadius:"16px", padding:"10px", cursor:"pointer", boxShadow:"0 4px 14px rgba(20,25,50,0.1)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", textAlign: "center" };
+const welcomeButtonIcon = { width: "36px", height: "36px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "12px", background: "#eef4ff", color: "#1f57d6" };
+const welcomeButtonText = { minWidth: 0, display: "grid", gap: "2px" };
+const welcomeButtonTitle = { color: "#111735", fontSize: "14px", fontWeight: "800", lineHeight: 1.15, overflowWrap: "anywhere" };
+const welcomeButtonSubtitle = { color: "#5f6b86", fontSize: "12px", fontWeight: "800", lineHeight: 1.2, overflowWrap: "anywhere" };
 const eventsHeader = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "14px", marginBottom: "2px" };
 const eventTabs = { minWidth: 0, display: "flex", alignItems: "center", gap: "18px", flexWrap: "wrap" };
 const activeEventTab = { margin: 0, borderBottom: "4px solid #111735", color: "#111735", fontSize: "22px", lineHeight: 1.2 };
