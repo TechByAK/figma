@@ -144,8 +144,10 @@ function getPreviewNews(user, newsLifeTitle) {
 
 function getDashboardCourses(user) {
   const schedule = getScheduleForUser(user);
+  const seenCourses = new Set();
 
   return Object.entries(schedule)
+    .sort(([firstDay], [secondDay]) => Number(firstDay) - Number(secondDay))
     .flatMap(([day, events]) =>
       events.map((event) => ({
         title: event.title,
@@ -157,6 +159,16 @@ function getDashboardCourses(user) {
         cancelled: event.cancelled,
       }))
     )
+    .filter((course) => {
+      const courseKey = `${course.title}-${course.time}-${course.location || ""}`;
+
+      if (seenCourses.has(courseKey)) {
+        return false;
+      }
+
+      seenCourses.add(courseKey);
+      return true;
+    })
     .slice(0, 3);
 }
 

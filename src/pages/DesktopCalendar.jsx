@@ -148,6 +148,7 @@ function DesktopCalendar() {
                   key={editingEvent?.id || "new"}
                   day={selectedDay}
                   editingEvent={editingEvent}
+                  monthIndex={monthIndex}
                   monthLength={monthLength}
                   user={user}
                   onCancelEdit={() => {
@@ -168,7 +169,7 @@ function DesktopCalendar() {
                         return;
                       }
 
-                      deleteScheduleEvent(user, selectedEvent.day || selectedDay, selectedEvent.id);
+                      deleteScheduleEvent(user, selectedEvent.day || selectedDay, selectedEvent.id, monthIndex);
                       setSelectedEvent(null);
                       setEditingEvent(null);
                       setScheduleVersion((version) => version + 1);
@@ -199,6 +200,7 @@ function DesktopCalendar() {
                 nextDay={nextDay}
                 previousDay={previousDay}
                 month={MONTHS_2026[monthIndex]}
+                monthIndex={monthIndex}
                 onEdit={setEditingEvent}
                 onSelect={setSelectedEvent}
                 selectedEventId={selectedEvent?.id}
@@ -239,8 +241,8 @@ function DesktopCalendar() {
 
 /* DAY VIEW */
 
-function DayView({ selectedDay, nextDay, previousDay, month, onEdit, onSelect, selectedEventId, user }) {
-  const events = getEventsForDay(user, selectedDay);
+function DayView({ selectedDay, nextDay, previousDay, month, monthIndex, onEdit, onSelect, selectedEventId, user }) {
+  const events = getEventsForDay(user, selectedDay, monthIndex);
 
   return (
     <div>
@@ -270,6 +272,7 @@ function DayView({ selectedDay, nextDay, previousDay, month, onEdit, onSelect, s
                   key={`${event.title}-${event.time}`}
                   title={event.title}
                   time={event.time}
+                  location={event.location}
                   color={event.color}
                   cancelled={event.cancelled}
                   event={{ ...event, day: selectedDay }}
@@ -341,13 +344,14 @@ function WeekView({ monthIndex, nextWeek, previousWeek, selectedDay, setSelected
             {days.map((day) => (
               <div key={`${day.label}-${day.number || "empty"}-${hour}`} style={gridCell}>
                 {day.number &&
-                  getEventsForDay(user, day.number)
+                  getEventsForDay(user, day.number, monthIndex)
                     .filter((event) => event.startHour === hour)
                     .map((event) => (
                       <EventCard
                         key={`${event.title}-${event.time}`}
                         title={event.title}
                         time={event.cancelled ? "Cancelled" : event.time}
+                        location={event.location}
                         color={event.color}
                         cancelled={event.cancelled}
                         event={{ ...event, day: day.number }}
@@ -404,7 +408,7 @@ function MonthView({ monthIndex, selectedDay, setSelectedDay, onSelect, user }) 
             return <div key={cell.key} style={blankMonthDay} />;
           }
 
-          const dayEvents = getEventsForDay(user, cell.day);
+          const dayEvents = getEventsForDay(user, cell.day, monthIndex);
 
           return (
             <div
@@ -443,6 +447,9 @@ function MonthView({ monthIndex, selectedDay, setSelectedDay, onSelect, user }) 
                     >
                       {event.cancelled ? "Cancelled" : event.time}
                     </span>
+                    {event.location && (
+                      <span style={monthEventLocation}>{event.location}</span>
+                    )}
                   </button>
                 ))}
 
@@ -460,7 +467,7 @@ function MonthView({ monthIndex, selectedDay, setSelectedDay, onSelect, user }) 
 
 /* EVENT CARD */
 
-function EventCard({ title, time, color, cancelled, event, onEdit, onSelect, selected, span = 1 }) {
+function EventCard({ title, time, location, color, cancelled, event, onEdit, onSelect, selected, span = 1 }) {
   return (
     <div
       onClick={() => event?.custom && onSelect(event)}
@@ -485,6 +492,8 @@ function EventCard({ title, time, color, cancelled, event, onEdit, onSelect, sel
       <p style={{ ...eventText, color: cancelled ? "#ff6b6b" : "#111735" }}>
         {time}
       </p>
+
+      {location && <p style={eventLocation}>{location}</p>}
 
       {event?.custom && (
         <button
@@ -667,7 +676,7 @@ const monthGrid = {
 };
 
 const monthDay = {
-  minHeight: "138px",
+  minHeight: "178px",
   background: "#f5f6fa",
   borderRadius: "12px",
   padding: "10px",
@@ -676,7 +685,7 @@ const monthDay = {
 };
 
 const blankMonthDay = {
-  minHeight: "138px",
+  minHeight: "178px",
 };
 
 const monthDayNumber = {
@@ -697,7 +706,7 @@ const monthEvents = {
 
 const monthEventChip = {
   width: "100%",
-  minHeight: "32px",
+  minHeight: "42px",
   display: "flex",
   flexDirection: "column",
   alignItems: "flex-start",
@@ -729,6 +738,17 @@ const monthEventTime = {
   whiteSpace: "nowrap",
   fontSize: "11px",
   fontWeight: "700",
+  lineHeight: 1.1,
+};
+
+const monthEventLocation = {
+  width: "100%",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  color: "#006f86",
+  fontSize: "10px",
+  fontWeight: "800",
   lineHeight: 1.1,
 };
 
@@ -772,6 +792,15 @@ const eventText = {
   color: "#111735",
   fontSize: "12px",
   lineHeight: 1.2,
+};
+
+const eventLocation = {
+  ...eventText,
+  color: "#006f86",
+  fontWeight: "800",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
 };
 
 const editButton = {

@@ -24,7 +24,7 @@ const ROLE_COPY = {
   },
 };
 
-function ScheduleEventForm({ day, editingEvent, monthLength, onAdded, onCancelEdit, user }) {
+function ScheduleEventForm({ day, editingEvent, monthIndex, monthLength, onAdded, onCancelEdit, user }) {
   const copy = ROLE_COPY[user];
   const [isOpen, setIsOpen] = useState(Boolean(editingEvent));
   const [title, setTitle] = useState(editingEvent?.title || "");
@@ -60,10 +60,15 @@ function ScheduleEventForm({ day, editingEvent, monthLength, onAdded, onCancelEd
     };
 
     if (editingEvent) {
-      updateScheduleEvent(user, editingEvent.day || day, editingEvent.id, nextEvent);
+      updateScheduleEvent(user, editingEvent.day || day, editingEvent.id, nextEvent, {
+        monthIndex,
+        monthLength,
+        repeatWeekly,
+      });
       onCancelEdit?.();
     } else {
       addScheduleEvent(user, day, nextEvent, {
+        monthIndex,
         monthLength,
         repeatWeekly,
       });
@@ -96,8 +101,7 @@ function ScheduleEventForm({ day, editingEvent, monthLength, onAdded, onCancelEd
       <form onSubmit={submitEvent} style={form}>
         <div style={formHeader}>
           <div>
-            <p style={eyebrow}>{editingEvent ? "Edit schedule" : "Schedule item"}</p>
-            <h2 style={heading}>{editingEvent ? "Edit item" : copy.action}</h2>
+            <h2 style={heading}>{editingEvent ? "Edit schedule" : copy.action}</h2>
           </div>
           <button
             aria-label="Close form"
@@ -157,16 +161,14 @@ function ScheduleEventForm({ day, editingEvent, monthLength, onAdded, onCancelEd
           </select>
         </div>
 
-        {!editingEvent && (
-          <label style={checkRow}>
-            <input
-              checked={repeatWeekly}
-              onChange={(event) => setRepeatWeekly(event.target.checked)}
-              type="checkbox"
-            />
-            <span>Save this schedule for all weeks</span>
-          </label>
-        )}
+        <label style={checkRow}>
+          <input
+            checked={repeatWeekly}
+            onChange={(event) => setRepeatWeekly(event.target.checked)}
+            type="checkbox"
+          />
+          <span>{editingEvent ? "Save changes for all weeks" : "Save this schedule for all weeks"}</span>
+        </label>
 
         <button style={button} type="submit">
           {editingEvent ? "Save changes" : copy.action}
@@ -249,13 +251,6 @@ const formHeader = {
   justifyContent: "space-between",
   gap: "12px",
   marginBottom: "18px",
-};
-
-const eyebrow = {
-  margin: "0 0 4px",
-  color: "#1f57d6",
-  fontSize: "13px",
-  fontWeight: "900",
 };
 
 const heading = {

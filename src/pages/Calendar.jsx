@@ -141,6 +141,7 @@ function Calendar() {
                 key={editingEvent?.id || "new"}
                 day={selectedDay}
                 editingEvent={editingEvent}
+                monthIndex={monthIndex}
                 monthLength={monthLength}
                 user={user}
                 onCancelEdit={() => {
@@ -161,7 +162,7 @@ function Calendar() {
                       return;
                     }
 
-                    deleteScheduleEvent(user, selectedEvent.day || selectedDay, selectedEvent.id);
+                    deleteScheduleEvent(user, selectedEvent.day || selectedDay, selectedEvent.id, monthIndex);
                     setSelectedEvent(null);
                     setEditingEvent(null);
                     setScheduleVersion((version) => version + 1);
@@ -190,6 +191,7 @@ function Calendar() {
             onSelect={setSelectedEvent}
             selectedEventId={selectedEvent?.id}
             selectedDay={selectedDay}
+            monthIndex={monthIndex}
             user={user}
           />
         </>
@@ -200,8 +202,8 @@ function Calendar() {
   );
 }
 
-function ScheduleForDay({ onEdit, onSelect, selectedEventId, selectedDay, user }) {
-  const events = getEventsForDay(user, selectedDay);
+function ScheduleForDay({ monthIndex, onEdit, onSelect, selectedEventId, selectedDay, user }) {
+  const events = getEventsForDay(user, selectedDay, monthIndex);
 
   return (
     <div style={timeline}>

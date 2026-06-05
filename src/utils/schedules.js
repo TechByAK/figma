@@ -77,9 +77,9 @@ const EVENT_COLORS = [
   "#006f86",
 ];
 
-export function getScheduleForUser(user) {
-  const baseSchedule = SCHEDULES[user] || {};
-  const customSchedule = getCustomScheduleForUser(user);
+export function getScheduleForUser(user, monthIndex = 1) {
+  const baseSchedule = monthIndex === 1 ? SCHEDULES[user] || {} : {};
+  const customSchedule = getCustomScheduleForUser(user, monthIndex);
   const days = new Set([
     ...Object.keys(baseSchedule),
     ...Object.keys(customSchedule),
@@ -99,12 +99,12 @@ export function getScheduleForUser(user) {
   }, {});
 }
 
-export function getEventsForDay(user, day) {
-  return getScheduleForUser(user)[day] || [];
+export function getEventsForDay(user, day, monthIndex = 1) {
+  return getScheduleForUser(user, monthIndex)[day] || [];
 }
 
 export function getNextScheduleEvent(user) {
-  const schedule = getScheduleForUser(user);
+  const schedule = getScheduleForUser(user, 1);
   const days = Object.keys(schedule)
     .map(Number)
     .sort((a, b) => a - b);
@@ -124,14 +124,10 @@ export function getNextScheduleEvent(user) {
 }
 
 export function addScheduleEvent(user, day, event, options = {}) {
-  const schedule = getCustomScheduleForUser(user);
+  const schedule = getCustomScheduleForUser(user, options.monthIndex);
   const monthLength = options.monthLength || 31;
-  const targetDays = options.repeatWeekly
-    ? Array.from(
-        { length: Math.floor((monthLength - day) / 7) + 1 },
-        (_, index) => day + index * 7
-      )
-    : [day];
+  const targetDays = options.repeatWeekly ? getSameWeekdayDays(day, monthLength) : [day];
+  const seriesId = `${Date.now()}`;
 
   targetDays.forEach((targetDay, index) => {
     const events = schedule[targetDay] || [];
@@ -141,33 +137,51 @@ export function addScheduleEvent(user, day, event, options = {}) {
       {
         ...event,
         color: event.color || getEventColor(event.title),
-        id: `${Date.now()}-${targetDay}-${index}`,
+        id: `${seriesId}-${targetDay}-${index}`,
       },
     ];
   });
 
-  localStorage.setItem(getCustomScheduleKey(user), JSON.stringify(schedule));
+  localStorage.setItem(getCustomScheduleKey(user, options.monthIndex), JSON.stringify(schedule));
 }
 
-export function updateScheduleEvent(user, day, eventId, nextEvent) {
-  const schedule = getCustomScheduleForUser(user);
-  const events = schedule[day] || [];
+export function updateScheduleEvent(user, day, eventId, nextEvent, options = {}) {
+  const schedule = getCustomScheduleForUser(user, options.monthIndex);
+  const monthLength = options.monthLength || 31;
+  const targetDays = options.repeatWeekly ? getSameWeekdayDays(day, monthLength) : [day];
+  const sourceEvent = (schedule[day] || []).find((event) => event.id === eventId);
+  const seriesKey = getSeriesKey(eventId);
+  const nextColor = sourceEvent?.color || getEventColor(nextEvent.title);
 
-  schedule[day] = events.map((event) =>
-    event.id === eventId
-      ? {
-          ...event,
-          ...nextEvent,
-          color: event.color || getEventColor(nextEvent.title),
-          id: event.id,
-        }
-      : event
-  );
-  localStorage.setItem(getCustomScheduleKey(user), JSON.stringify(schedule));
+  targetDays.forEach((targetDay, index) => {
+    const events = schedule[targetDay] || [];
+    const matchingIndex = events.findIndex((event) =>
+      targetDay === day
+        ? event.id === eventId
+        : event.id?.startsWith(`${seriesKey}-`)
+    );
+    const updatedEvent = {
+      ...(matchingIndex >= 0 ? events[matchingIndex] : sourceEvent),
+      ...nextEvent,
+      color: nextColor,
+      id: matchingIndex >= 0
+        ? events[matchingIndex].id
+        : `${seriesKey}-${targetDay}-${index}`,
+    };
+
+    schedule[targetDay] =
+      matchingIndex >= 0
+        ? events.map((event, eventIndex) =>
+            eventIndex === matchingIndex ? updatedEvent : event
+          )
+        : [...events, updatedEvent];
+  });
+
+  localStorage.setItem(getCustomScheduleKey(user, options.monthIndex), JSON.stringify(schedule));
 }
 
-export function deleteScheduleEvent(user, day, eventId) {
-  const schedule = getCustomScheduleForUser(user);
+export function deleteScheduleEvent(user, day, eventId, monthIndex = 1) {
+  const schedule = getCustomScheduleForUser(user, monthIndex);
   const events = schedule[day] || [];
 
   schedule[day] = events.filter((event) => event.id !== eventId);
@@ -176,18 +190,20 @@ export function deleteScheduleEvent(user, day, eventId) {
     delete schedule[day];
   }
 
-  localStorage.setItem(getCustomScheduleKey(user), JSON.stringify(schedule));
+  localStorage.setItem(getCustomScheduleKey(user, monthIndex), JSON.stringify(schedule));
 }
 
 export function clearScheduleForUser(user) {
-  localStorage.removeItem(getCustomScheduleKey(user));
+  Object.keys(localStorage)
+    .filter((key) => key === getLegacyCustomScheduleKey(user) || key.startsWith(`${getLegacyCustomScheduleKey(user)}:`))
+    .forEach((key) => localStorage.removeItem(key));
 }
 
-export function clearScheduleDayForUser(user, day) {
-  const schedule = getCustomScheduleForUser(user);
+export function clearScheduleDayForUser(user, day, monthIndex = 1) {
+  const schedule = getCustomScheduleForUser(user, monthIndex);
 
   delete schedule[day];
-  localStorage.setItem(getCustomScheduleKey(user), JSON.stringify(schedule));
+  localStorage.setItem(getCustomScheduleKey(user, monthIndex), JSON.stringify(schedule));
 }
 
 export function getEventSpan(event) {
@@ -211,6 +227,12 @@ function getEndHour(event) {
   return event.endHour || event.time?.split("—")[1]?.trim();
 }
 
+function getSameWeekdayDays(day, monthLength) {
+  return Array.from({ length: monthLength }, (_, index) => index + 1).filter(
+    (targetDay) => (targetDay - day) % 7 === 0
+  );
+}
+
 function getEventColor(title) {
   const value = Array.from(title || "").reduce(
     (hash, char) => hash + char.charCodeAt(0),
@@ -220,29 +242,65 @@ function getEventColor(title) {
   return EVENT_COLORS[value % EVENT_COLORS.length];
 }
 
-function getCustomScheduleForUser(user) {
-  try {
-    const schedule = JSON.parse(localStorage.getItem(getCustomScheduleKey(user))) || {};
+function getSeriesKey(eventId) {
+  if (!eventId) {
+    return `${Date.now()}`;
+  }
 
-    return normalizeCustomSchedule(user, schedule);
+  if (eventId.startsWith("legacy-")) {
+    return eventId;
+  }
+
+  return eventId.split("-")[0];
+}
+
+function getCustomScheduleForUser(user, monthIndex = 1) {
+  try {
+    const monthSchedule =
+      JSON.parse(localStorage.getItem(getCustomScheduleKey(user, monthIndex))) || {};
+    const legacySchedule =
+      monthIndex === 1
+        ? JSON.parse(localStorage.getItem(getLegacyCustomScheduleKey(user))) || {}
+        : {};
+    const schedule = mergeSchedules(legacySchedule, monthSchedule);
+
+    return normalizeCustomSchedule(schedule);
   } catch {
     return {};
   }
 }
 
-function getCustomScheduleKey(user) {
+function getLegacyCustomScheduleKey(user) {
   return `customSchedule:${user}`;
 }
 
-function normalizeCustomSchedule(user, schedule) {
-  let changed = false;
+function getCustomScheduleKey(user, monthIndex = 1) {
+  return `${getLegacyCustomScheduleKey(user)}:month:${monthIndex}`;
+}
+
+function mergeSchedules(baseSchedule, customSchedule) {
+  const days = new Set([
+    ...Object.keys(baseSchedule || {}),
+    ...Object.keys(customSchedule || {}),
+  ]);
+
+  return Array.from(days).reduce((schedule, day) => {
+    schedule[day] = [
+      ...(baseSchedule?.[day] || []),
+      ...(customSchedule?.[day] || []),
+    ];
+
+    return schedule;
+  }, {});
+}
+
+function normalizeCustomSchedule(schedule) {
   const normalizedSchedule = Object.entries(schedule).reduce((nextSchedule, [day, events]) => {
     nextSchedule[day] = (events || []).map((event, index) => {
       if (event.id) {
         return event;
       }
 
-      changed = true;
       return {
         ...event,
         id: `legacy-${day}-${index}-${event.title}`,
@@ -251,10 +309,6 @@ function normalizeCustomSchedule(user, schedule) {
 
     return nextSchedule;
   }, {});
-
-  if (changed) {
-    localStorage.setItem(getCustomScheduleKey(user), JSON.stringify(normalizedSchedule));
-  }
 
   return normalizedSchedule;
 }
