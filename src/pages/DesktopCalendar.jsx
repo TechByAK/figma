@@ -399,34 +399,60 @@ function MonthView({ monthIndex, selectedDay, setSelectedDay, onSelect, user }) 
       </div>
 
       <div style={monthGrid}>
-        {cells.map((cell) =>
-          cell.type === "blank" ? (
-            <div key={cell.key} style={blankMonthDay} />
-          ) : (
-          <div
-            key={cell.key}
-            onClick={() => setSelectedDay(cell.day)}
-            style={cell.day === selectedDay ? selectedMonthDay : monthDay}
-          >
-            <strong>{cell.day}</strong>
+        {cells.map((cell) => {
+          if (cell.type === "blank") {
+            return <div key={cell.key} style={blankMonthDay} />;
+          }
 
-            {getEventsForDay(user, cell.day).map((event) => (
-              <p
-                key={`${event.title}-${event.time}`}
-                onClick={(clickEvent) => {
-                  clickEvent.stopPropagation();
-                  if (event.custom) {
-                    setSelectedDay(cell.day);
-                    onSelect({ ...event, day: cell.day });
-                  }
-                }}
-              >
-                {event.title}
-              </p>
-            ))}
-          </div>
-          )
-        )}
+          const dayEvents = getEventsForDay(user, cell.day);
+
+          return (
+            <div
+              key={cell.key}
+              onClick={() => setSelectedDay(cell.day)}
+              style={cell.day === selectedDay ? selectedMonthDay : monthDay}
+            >
+              <strong style={monthDayNumber}>{cell.day}</strong>
+
+              <div style={monthEvents}>
+                {dayEvents.slice(0, 3).map((event) => (
+                  <button
+                    key={`${event.title}-${event.time}`}
+                    onClick={(clickEvent) => {
+                      clickEvent.stopPropagation();
+                      if (event.custom) {
+                        setSelectedDay(cell.day);
+                        onSelect({ ...event, day: cell.day });
+                      }
+                    }}
+                    style={{
+                      ...monthEventChip,
+                      borderLeft: `4px solid ${
+                        event.cancelled ? "#ff6b6b" : event.color || "#1f57d6"
+                      }`,
+                      background: event.cancelled ? "#fff1f1" : "white",
+                    }}
+                    type="button"
+                  >
+                    <span style={monthEventTitle}>{event.title}</span>
+                    <span
+                      style={{
+                        ...monthEventTime,
+                        color: event.cancelled ? "#d9234f" : "#4d5872",
+                      }}
+                    >
+                      {event.cancelled ? "Cancelled" : event.time}
+                    </span>
+                  </button>
+                ))}
+
+                {dayEvents.length > 3 && (
+                  <span style={monthMore}>+{dayEvents.length - 3} more</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -641,15 +667,77 @@ const monthGrid = {
 };
 
 const monthDay = {
-  minHeight: "100px",
+  minHeight: "138px",
   background: "#f5f6fa",
   borderRadius: "12px",
-  padding: "12px",
+  padding: "10px",
   cursor: "pointer",
+  overflow: "hidden",
 };
 
 const blankMonthDay = {
-  minHeight: "100px",
+  minHeight: "138px",
+};
+
+const monthDayNumber = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minWidth: "24px",
+  height: "24px",
+  color: "#111735",
+};
+
+const monthEvents = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "6px",
+  marginTop: "8px",
+};
+
+const monthEventChip = {
+  width: "100%",
+  minHeight: "32px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  justifyContent: "center",
+  gap: "2px",
+  padding: "5px 6px 5px 8px",
+  border: "1px solid #e3e7f2",
+  borderRadius: "8px",
+  color: "#111735",
+  cursor: "pointer",
+  textAlign: "left",
+  boxShadow: "0 2px 8px rgba(20, 25, 50, 0.05)",
+};
+
+const monthEventTitle = {
+  width: "100%",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  fontSize: "12px",
+  fontWeight: "800",
+  lineHeight: 1.1,
+};
+
+const monthEventTime = {
+  width: "100%",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  fontSize: "11px",
+  fontWeight: "700",
+  lineHeight: 1.1,
+};
+
+const monthMore = {
+  display: "block",
+  color: "#4d5872",
+  fontSize: "11px",
+  fontWeight: "800",
+  lineHeight: 1.1,
 };
 
 const selectedMonthDay = {

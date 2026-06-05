@@ -28,7 +28,7 @@ function DesktopLayout({ children }) {
     <div style={page}>
       <aside style={sidebar}>
         <div style={logoTile}>
-          <img src="/images/Frame.png" style={logo} alt="Rennes School of Business" />
+          <img src="/images/frame-logo-blue.svg" style={logo} alt="Rennes School of Business" />
         </div>
 
         <nav style={nav}>
@@ -159,16 +159,17 @@ const sidebar = {
 };
 
 const logoTile = {
-  width: "104px",
-  padding: "8px",
-  margin: "0 auto 20px",
-  borderRadius: "12px",
-  background: "#00337a",
+  width: "118px",
+  margin: "0 auto 22px",
+  padding: 0,
+  background: "transparent",
 };
 
 const logo = {
   width: "100%",
+  maxHeight: "118px",
   display: "block",
+  objectFit: "contain",
 };
 
 const nav = {
@@ -179,20 +180,24 @@ const nav = {
 
 const sideItem = {
   width: "100%",
-  minHeight: "50px",
+  minHeight: "66px",
   display: "flex",
+  flexDirection: "column",
   alignItems: "center",
-  gap: "10px",
-  padding: "0 12px",
+  justifyContent: "center",
+  gap: "6px",
+  padding: "8px 6px",
   border: 0,
   borderRadius: "14px",
   cursor: "pointer",
-  fontSize: "15px",
-  textAlign: "left",
+  fontSize: "13px",
+  lineHeight: 1.1,
+  textAlign: "center",
 };
 
 const sideIcon = {
   width: "24px",
+  height: "24px",
   flexShrink: 0,
   display: "flex",
   alignItems: "center",
@@ -202,9 +207,11 @@ const sideIcon = {
 
 const sideText = {
   minWidth: 0,
+  maxWidth: "100%",
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
+  textAlign: "center",
 };
 
 const logoutBtn = {

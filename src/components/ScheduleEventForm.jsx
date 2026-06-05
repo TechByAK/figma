@@ -27,7 +27,7 @@ const ROLE_COPY = {
 function ScheduleEventForm({ day, editingEvent, monthLength, onAdded, onCancelEdit, user }) {
   const copy = ROLE_COPY[user];
   const [isOpen, setIsOpen] = useState(Boolean(editingEvent));
-  const [title, setTitle] = useState(editingEvent?.title || copy?.title || "");
+  const [title, setTitle] = useState(editingEvent?.title || "");
   const [location, setLocation] = useState(editingEvent?.location || "");
   const [startHour, setStartHour] = useState(editingEvent?.startHour || "9 AM");
   const [endTime, setEndTime] = useState(
@@ -69,7 +69,7 @@ function ScheduleEventForm({ day, editingEvent, monthLength, onAdded, onCancelEd
       });
     }
 
-    setTitle(copy.title);
+    setTitle("");
     setLocation("");
     setStartHour("9 AM");
     setEndTime("10 AM");
