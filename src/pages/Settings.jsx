@@ -51,15 +51,14 @@ function Settings() {
 function SettingsContent({ contact, profile, user }) {
   const [openSection, setOpenSection] = useState(null);
   const [resetMessage, setResetMessage] = useState("");
-  const [installPrompt, setInstallPrompt] = useState(null);
+  const [installPrompt, setInstallPrompt] = useState(() => window.__pwaInstallPrompt || null);
   const [installMessage, setInstallMessage] = useState(getInstallGuidance());
   const account = getAccountDetails(user, profile);
   const policies = getPolicies(user);
 
   useEffect(() => {
-    function handleBeforeInstallPrompt(event) {
-      event.preventDefault();
-      setInstallPrompt(event);
+    function handleInstallReady() {
+      setInstallPrompt(window.__pwaInstallPrompt || null);
       setInstallMessage("");
     }
 
@@ -68,12 +67,14 @@ function SettingsContent({ contact, profile, user }) {
       setInstallMessage("App added. You can now open it from your home screen or desktop.");
     }
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    window.addEventListener("appinstalled", handleAppInstalled);
+    handleInstallReady();
+
+    window.addEventListener("pwa-install-ready", handleInstallReady);
+    window.addEventListener("pwa-installed", handleAppInstalled);
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-      window.removeEventListener("appinstalled", handleAppInstalled);
+      window.removeEventListener("pwa-install-ready", handleInstallReady);
+      window.removeEventListener("pwa-installed", handleAppInstalled);
     };
   }, []);
 
@@ -87,6 +88,7 @@ function SettingsContent({ contact, profile, user }) {
       await installPrompt.prompt();
       const choice = await installPrompt.userChoice;
 
+      window.__pwaInstallPrompt = null;
       setInstallPrompt(null);
       setInstallMessage(
         choice?.outcome === "accepted"
