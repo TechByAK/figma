@@ -52,7 +52,7 @@ function SettingsContent({ contact, profile, user }) {
   const [openSection, setOpenSection] = useState(null);
   const [resetMessage, setResetMessage] = useState("");
   const [installPrompt, setInstallPrompt] = useState(null);
-  const [installMessage, setInstallMessage] = useState("");
+  const [installMessage, setInstallMessage] = useState(getInstallGuidance());
   const account = getAccountDetails(user, profile);
   const policies = getPolicies(user);
 
@@ -63,10 +63,54 @@ function SettingsContent({ contact, profile, user }) {
       setInstallMessage("");
     }
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    function handleAppInstalled() {
+      setInstallPrompt(null);
+      setInstallMessage("App added. You can now open it from your home screen or desktop.");
+    }
 
-    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
   }, []);
+
+  async function handleInstallClick() {
+    if (isAppInstalled()) {
+      setInstallMessage("This app is already running as an installed app.");
+      return;
+    }
+
+    if (installPrompt) {
+      await installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+
+      setInstallPrompt(null);
+      setInstallMessage(
+        choice?.outcome === "accepted"
+          ? "Install started. Check your home screen or app list."
+          : getInstallGuidance()
+      );
+      return;
+    }
+
+    if (isIOSDevice() && navigator.share) {
+      try {
+        await navigator.share({
+          title: "Rennes School App",
+          text: "Add this prototype to your home screen.",
+          url: window.location.href,
+        });
+      } catch {
+        setInstallMessage(getInstallGuidance());
+        return;
+      }
+    }
+
+    setInstallMessage(getInstallGuidance());
+  }
 
   function toggleSection(section) {
     setOpenSection((current) => (current === section ? null : section));
@@ -140,28 +184,18 @@ function SettingsContent({ contact, profile, user }) {
         onToggle={() => toggleSection("pwa")}
         title="Install app"
       >
-        <div style={sessionNote}>
-          <AppIcon name="download" size={19} />
-          <span>Add this prototype to your phone home screen or desktop for quicker access.</span>
-        </div>
         <button
-          onClick={async () => {
-            if (!installPrompt) {
-              setInstallMessage("If the install prompt is not available, use your browser share menu and choose Add to Home Screen.");
-              return;
-            }
-
-            await installPrompt.prompt();
-            setInstallPrompt(null);
-            setInstallMessage("Install prompt opened.");
-          }}
+          onClick={handleInstallClick}
           style={installButton}
           type="button"
         >
           <AppIcon name="download" size={18} />
           <span>Install app</span>
         </button>
-        {installMessage && <p style={policyNote}>{installMessage}</p>}
+        <p style={installNote}>
+          <span style={noteMarker}>*</span>
+          <span>{installMessage || getInstallGuidance()}</span>
+        </p>
       </SettingCard>
 
       <SettingCard
@@ -212,7 +246,7 @@ function SettingsContent({ contact, profile, user }) {
         onToggle={() => toggleSection("reset")}
         title="Demo data"
       >
-        <p style={policyNote}>Reset custom schedules and read notifications before a presentation.</p>
+        <NoteText>Reset custom schedules and read notifications before a presentation.</NoteText>
         <button
           onClick={() => {
             clearDemoData();
@@ -228,6 +262,37 @@ function SettingsContent({ contact, profile, user }) {
       </SettingCard>
     </div>
   );
+}
+
+function isIOSDevice() {
+  if (typeof window === "undefined") return false;
+
+  return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+}
+
+function isAppInstalled() {
+  if (typeof window === "undefined") return false;
+
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+function getInstallGuidance() {
+  if (typeof window === "undefined") {
+    return "Use your browser install option to add the app to your home screen.";
+  }
+
+  if (isAppInstalled()) {
+    return "The app is already installed on this device.";
+  }
+
+  if (isIOSDevice()) {
+    return "On iPhone, tap Share, then choose Add to Home Screen.";
+  }
+
+  return "If no install prompt opens, use your browser menu and choose Install app or Add to Home Screen.";
 }
 
 function SettingCard({ children, icon, isOpen, onToggle, title }) {
@@ -257,6 +322,15 @@ function ProfileDetail({ label, value }) {
     <p style={detailItem}>
       <span style={detailLabel}>{label}</span>
       {value}
+    </p>
+  );
+}
+
+function NoteText({ children }) {
+  return (
+    <p style={installNote}>
+      <span style={noteMarker}>*</span>
+      <span>{children}</span>
     </p>
   );
 }
@@ -624,6 +698,27 @@ const policyNote = {
   fontWeight: "700",
   lineHeight: 1.45,
   overflowWrap: "anywhere",
+};
+
+const installNote = {
+  width: "100%",
+  maxWidth: "520px",
+  margin: "10px 0 0",
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "7px",
+  color: "#5f6b86",
+  fontSize: "12px",
+  fontWeight: "800",
+  lineHeight: 1.45,
+  overflowWrap: "anywhere",
+};
+
+const noteMarker = {
+  color: "#1f57d6",
+  fontSize: "14px",
+  lineHeight: 1,
+  marginTop: "2px",
 };
 
 const dangerButton = {
