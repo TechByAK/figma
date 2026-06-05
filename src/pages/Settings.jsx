@@ -84,9 +84,11 @@ function SettingsContent({ contact, profile, user }) {
       return;
     }
 
-    if (installPrompt) {
-      await installPrompt.prompt();
-      const choice = await installPrompt.userChoice;
+    const prompt = installPrompt || window.__pwaInstallPrompt;
+
+    if (prompt) {
+      await prompt.prompt();
+      const choice = await prompt.userChoice;
 
       window.__pwaInstallPrompt = null;
       setInstallPrompt(null);
@@ -98,20 +100,7 @@ function SettingsContent({ contact, profile, user }) {
       return;
     }
 
-    if (isIOSDevice() && navigator.share) {
-      try {
-        await navigator.share({
-          title: "Rennes School App",
-          text: "Add this prototype to your home screen.",
-          url: window.location.href,
-        });
-      } catch {
-        setInstallMessage(getInstallGuidance());
-        return;
-      }
-    }
-
-    setInstallMessage(getInstallGuidance());
+    setInstallMessage(getInstallUnavailableMessage());
   }
 
   function toggleSection(section) {
@@ -295,6 +284,14 @@ function getInstallGuidance() {
   }
 
   return "If no install prompt opens, use your browser menu and choose Install app or Add to Home Screen.";
+}
+
+function getInstallUnavailableMessage() {
+  if (isIOSDevice()) {
+    return "iPhone does not allow one-tap install. Open Safari, tap Share, then choose Add to Home Screen.";
+  }
+
+  return "The browser install prompt is not available right now. Use the browser menu and choose Install app, Add to Home Screen, or Add to Dock.";
 }
 
 function SettingCard({ children, icon, isOpen, onToggle, title }) {
