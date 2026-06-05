@@ -28,7 +28,7 @@ function DesktopLayout({ children }) {
     <div style={page}>
       <aside style={sidebar}>
         <div style={logoTile}>
-          <img src="/images/frame-logo-blue.svg" style={logo} alt="Rennes School of Business" />
+          <img src="/images/FinalLogoRennes.png" style={logo} alt="Rennes School of Business" />
         </div>
 
         <nav style={nav}>
@@ -159,15 +159,15 @@ const sidebar = {
 };
 
 const logoTile = {
-  width: "118px",
-  margin: "0 auto 22px",
+  width: "112px",
+  margin: "0 auto 20px",
   padding: 0,
   background: "transparent",
 };
 
 const logo = {
   width: "100%",
-  maxHeight: "118px",
+  maxHeight: "116px",
   display: "block",
   objectFit: "contain",
 };

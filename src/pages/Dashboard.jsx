@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppIcon from "../components/AppIcon";
 import DesktopLayout from "../components/DesktopLayout";
+import { getWeekdayName2026 } from "../utils/calendar2026";
 import { getRoleCopy } from "../utils/users";
 import { getScheduleForUser } from "../utils/schedules";
 
@@ -30,7 +31,7 @@ function Dashboard() {
                 </div>
               ) : (
                 courses.map((course) => (
-                  <Course key={course.title} title={course.title} text={course.text} />
+                  <Course key={`${course.title}-${course.time}`} course={course} />
                 ))
               )}
             </div>
@@ -148,19 +149,47 @@ function getDashboardCourses(user) {
     .flatMap(([day, events]) =>
       events.map((event) => ({
         title: event.title,
-        text: `Day ${day} • ${event.time}`,
+        day,
+        weekday: getWeekdayName2026(1, Number(day)),
+        time: event.cancelled ? "Cancelled" : event.time,
+        location: event.location,
+        color: event.cancelled ? "#ff6b6b" : event.color || "#1f57d6",
+        cancelled: event.cancelled,
       }))
     )
     .slice(0, 3);
 }
 
-function Course({ title, text }) {
+function Course({ course }) {
   return (
-    <div style={courseCard}>
-      <b>{title}</b>
-      <p>{text}</p>
+    <div
+      style={{
+        ...courseCard,
+        borderLeft: `5px solid ${course.color}`,
+        background: course.cancelled ? "#fff1f1" : "white",
+      }}
+    >
+      <span style={{ ...courseIcon, color: course.color, background: getCourseTint(course.color) }}>
+        <AppIcon name="calendar" size={20} />
+      </span>
+
+      <div style={courseText}>
+        <b style={courseTitle}>{course.title}</b>
+        <span style={courseMeta}>
+          {course.weekday} {course.day} • {course.time}
+        </span>
+        {course.location && <span style={courseLocation}>{course.location}</span>}
+      </div>
     </div>
   );
+}
+
+function getCourseTint(color) {
+  if (color === "#ff6b6b") return "#fff1f1";
+  if (color === "#915900") return "#fff3d9";
+  if (color === "#7a0b4f") return "#fde6f3";
+  if (color === "#006f86") return "#e8faff";
+  return "#eef4ff";
 }
 
 function EventImage({ src }) {
@@ -219,11 +248,61 @@ const emptyCourse = {
 };
 
 const courseCard = {
+  minWidth: 0,
   background: "white",
-  padding: "16px",
-  borderRadius: "15px",
-  marginBottom: "16px",
-  textAlign: "center",
+  padding: "13px 14px",
+  border: "1px solid #e3e7f2",
+  borderRadius: "14px",
+  marginBottom: "12px",
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  boxShadow: "0 4px 14px rgba(20,25,50,0.08)",
+};
+
+const courseIcon = {
+  width: "42px",
+  height: "42px",
+  flexShrink: 0,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: "13px",
+};
+
+const courseText = {
+  minWidth: 0,
+  display: "grid",
+  gap: "3px",
+};
+
+const courseTitle = {
+  color: "#111735",
+  fontSize: "15px",
+  lineHeight: 1.2,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+const courseMeta = {
+  color: "#4d5872",
+  fontSize: "12px",
+  fontWeight: "800",
+  lineHeight: 1.2,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+};
+
+const courseLocation = {
+  color: "#006f86",
+  fontSize: "12px",
+  fontWeight: "800",
+  lineHeight: 1.2,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
 };
 
 const eventsBox = {

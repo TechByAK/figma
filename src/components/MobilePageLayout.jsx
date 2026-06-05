@@ -92,17 +92,17 @@ const bottomNav = {
 
 const navItem = {
   minWidth: 0,
-  minHeight: "52px",
+  padding: 0,
   border: 0,
   background: "white",
   color: "#111735",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  justifyContent: "center",
   gap: "5px",
   fontSize: "12px",
-  fontWeight: "700",
+  fontWeight: "600",
+  fontFamily: "Arial, sans-serif",
   cursor: "pointer",
 };
 
