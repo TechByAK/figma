@@ -257,6 +257,6 @@ const previewTitle = { margin: "0 0 5px", color: "#111735", fontSize: "18px", li
 const previewText = { margin: 0, color: "#111735", fontSize: "14px", lineHeight: 1.45, overflowWrap: "anywhere" };
 const bottomNav = { position: "fixed", bottom: 0, left: 0, right: 0, background: "white", display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", padding: "14px 0 16px", boxShadow: "0 -4px 18px #ddd", color: "#111735" };
 const navItem = { minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", fontSize: "12px", fontWeight: "600", cursor: "pointer" };
-const activeNav = { ...navItem, color: "#111735" };
+const activeNav = { ...navItem, color: "#00337a", fontWeight: "800", background: "#eef4ff", borderRadius: "14px", margin: "0 6px", padding: "6px 0" };
 
 export default Home;

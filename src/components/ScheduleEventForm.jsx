@@ -79,86 +79,107 @@ function ScheduleEventForm({ day, editingEvent, monthLength, onAdded, onCancelEd
   }
 
   return (
-    <form onSubmit={submitEvent} style={form}>
-      <div style={formHeader}>
-        {editingEvent ? (
-          <h2 style={heading}>Edit item</h2>
-        ) : (
+    <div style={panelOverlay}>
+      <button
+        aria-label="Close schedule panel"
+        onClick={() => {
+          if (editingEvent) {
+            onCancelEdit?.();
+          } else {
+            setIsOpen(false);
+          }
+        }}
+        style={panelBackdrop}
+        type="button"
+      />
+
+      <form onSubmit={submitEvent} style={form}>
+        <div style={formHeader}>
+          <div>
+            <p style={eyebrow}>{editingEvent ? "Edit schedule" : "Schedule item"}</p>
+            <h2 style={heading}>{editingEvent ? "Edit item" : copy.action}</h2>
+          </div>
           <button
-            aria-label="Minimize form"
+            aria-label="Close form"
             style={minimizeButton}
             type="button"
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              if (editingEvent) {
+                onCancelEdit?.();
+              } else {
+                setIsOpen(false);
+              }
+            }}
           >
-            -
+            ×
+          </button>
+        </div>
+
+        <div style={grid}>
+          <input
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            style={input}
+            placeholder={copy.title}
+          />
+          <input
+            value={location}
+            onChange={(event) => setLocation(event.target.value)}
+            style={input}
+            placeholder={copy.location}
+          />
+          <select
+            value={startHour}
+            onChange={(event) => {
+              setStartHour(event.target.value);
+              setEndTime(getNextHour(event.target.value));
+            }}
+            style={input}
+          >
+            {SCHEDULE_HOURS.map((hour) => (
+              <option key={hour} value={hour}>
+                {hour}
+              </option>
+            ))}
+          </select>
+          <select
+            value={endTime}
+            onChange={(event) => setEndTime(event.target.value)}
+            style={input}
+          >
+            {SCHEDULE_HOURS.filter((hour) => {
+              return SCHEDULE_HOURS.indexOf(hour) > SCHEDULE_HOURS.indexOf(startHour);
+            }).map((hour) => (
+              <option key={hour} value={hour}>
+                {hour}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {!editingEvent && (
+          <label style={checkRow}>
+            <input
+              checked={repeatWeekly}
+              onChange={(event) => setRepeatWeekly(event.target.checked)}
+              type="checkbox"
+            />
+            <span>Save this schedule for all weeks</span>
+          </label>
+        )}
+
+        <button style={button} type="submit">
+          {editingEvent ? "Save changes" : copy.action}
+        </button>
+
+        {editingEvent && (
+          <button style={secondaryButton} type="button" onClick={onCancelEdit}>
+            Cancel edit
           </button>
         )}
-      </div>
 
-      <div style={grid}>
-        <input
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          style={input}
-          placeholder={copy.title}
-        />
-        <input
-          value={location}
-          onChange={(event) => setLocation(event.target.value)}
-          style={input}
-          placeholder={copy.location}
-        />
-        <select
-          value={startHour}
-          onChange={(event) => {
-            setStartHour(event.target.value);
-            setEndTime(getNextHour(event.target.value));
-          }}
-          style={input}
-        >
-          {SCHEDULE_HOURS.map((hour) => (
-            <option key={hour} value={hour}>
-              {hour}
-            </option>
-          ))}
-        </select>
-        <select
-          value={endTime}
-          onChange={(event) => setEndTime(event.target.value)}
-          style={input}
-        >
-          {SCHEDULE_HOURS.filter((hour) => {
-            return SCHEDULE_HOURS.indexOf(hour) > SCHEDULE_HOURS.indexOf(startHour);
-          }).map((hour) => (
-            <option key={hour} value={hour}>
-              {hour}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {!editingEvent && (
-        <label style={checkRow}>
-          <input
-            checked={repeatWeekly}
-            onChange={(event) => setRepeatWeekly(event.target.checked)}
-            type="checkbox"
-          />
-          <span>Save this schedule for all weeks</span>
-        </label>
-      )}
-
-      <button style={button} type="submit">
-        {editingEvent ? "Save changes" : copy.action}
-      </button>
-
-      {editingEvent && (
-        <button style={secondaryButton} type="button" onClick={onCancelEdit}>
-          Cancel edit
-        </button>
-      )}
-
-    </form>
+      </form>
+    </div>
   );
 }
 
@@ -167,10 +188,30 @@ function getEndTime(time) {
 }
 
 const form = {
-  background: "#f5f6fa",
-  borderRadius: "18px",
-  padding: "16px",
-  margin: "18px 0",
+  position: "fixed",
+  top: 0,
+  right: 0,
+  zIndex: 121,
+  width: "min(92vw, 390px)",
+  height: "100vh",
+  overflowY: "auto",
+  background: "white",
+  padding: "22px 18px",
+  boxShadow: "-8px 0 28px rgba(20, 25, 50, 0.22)",
+};
+
+const panelOverlay = {
+  position: "fixed",
+  inset: 0,
+  zIndex: 120,
+};
+
+const panelBackdrop = {
+  position: "absolute",
+  inset: 0,
+  border: 0,
+  background: "rgba(8, 26, 74, 0.32)",
+  cursor: "pointer",
 };
 
 const openButton = {
@@ -205,9 +246,16 @@ const openIcon = {
 const formHeader = {
   display: "flex",
   alignItems: "center",
-  justifyContent: "center",
+  justifyContent: "space-between",
   gap: "12px",
-  marginBottom: "12px",
+  marginBottom: "18px",
+};
+
+const eyebrow = {
+  margin: "0 0 4px",
+  color: "#1f57d6",
+  fontSize: "13px",
+  fontWeight: "900",
 };
 
 const heading = {
@@ -224,7 +272,7 @@ const minimizeButton = {
   borderRadius: "50%",
   background: "white",
   color: "#081a4a",
-  fontSize: "24px",
+  fontSize: "22px",
   fontWeight: "900",
   lineHeight: 1,
   cursor: "pointer",

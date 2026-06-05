@@ -548,7 +548,12 @@ const navItem = {
 
 const activeNavItem = {
   ...navItem,
-  color: "#111735",
+  color: "#00337a",
+  fontWeight: "800",
+  background: "#eef4ff",
+  borderRadius: "14px",
+  margin: "0 6px",
+  padding: "6px 0",
 };
 
 export default Calendar;

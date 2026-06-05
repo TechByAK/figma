@@ -110,6 +110,13 @@ const paths = {
       <rect width="7" height="5" x="3" y="16" rx="1.5" />
     </>
   ),
+  download: (
+    <>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <path d="M7 10l5 5 5-5" />
+      <path d="M12 15V3" />
+    </>
+  ),
   externalLink: (
     <>
       <path d="M15 3h6v6" />

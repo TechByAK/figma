@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppIcon from "../components/AppIcon";
 import DesktopLayout from "../components/DesktopLayout";
@@ -51,8 +51,22 @@ function Settings() {
 function SettingsContent({ contact, profile, user }) {
   const [openSection, setOpenSection] = useState(null);
   const [resetMessage, setResetMessage] = useState("");
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [installMessage, setInstallMessage] = useState("");
   const account = getAccountDetails(user, profile);
   const policies = getPolicies(user);
+
+  useEffect(() => {
+    function handleBeforeInstallPrompt(event) {
+      event.preventDefault();
+      setInstallPrompt(event);
+      setInstallMessage("");
+    }
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+  }, []);
 
   function toggleSection(section) {
     setOpenSection((current) => (current === section ? null : section));
@@ -118,6 +132,36 @@ function SettingsContent({ contact, profile, user }) {
           ))}
         </div>
         <p style={policyNote}>Prototype policy information for app demonstration. Official rules should be checked through Rennes School of Business services.</p>
+      </SettingCard>
+
+      <SettingCard
+        icon="download"
+        isOpen={openSection === "pwa"}
+        onToggle={() => toggleSection("pwa")}
+        title="Install app"
+      >
+        <div style={sessionNote}>
+          <AppIcon name="download" size={19} />
+          <span>Add this prototype to your phone home screen or desktop for quicker access.</span>
+        </div>
+        <button
+          onClick={async () => {
+            if (!installPrompt) {
+              setInstallMessage("If the install prompt is not available, use your browser share menu and choose Add to Home Screen.");
+              return;
+            }
+
+            await installPrompt.prompt();
+            setInstallPrompt(null);
+            setInstallMessage("Install prompt opened.");
+          }}
+          style={installButton}
+          type="button"
+        >
+          <AppIcon name="download" size={18} />
+          <span>Install app</span>
+        </button>
+        {installMessage && <p style={policyNote}>{installMessage}</p>}
       </SettingCard>
 
       <SettingCard
@@ -614,6 +658,11 @@ const resetButton = {
   fontSize: "14px",
   fontWeight: "800",
   cursor: "pointer",
+};
+
+const installButton = {
+  ...resetButton,
+  background: "#081a4a",
 };
 
 const resetMessageStyle = {
